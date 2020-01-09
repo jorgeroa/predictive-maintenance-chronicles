@@ -2,15 +2,15 @@
 # To add a new markdown cell, type '# %% [markdown]'
 
 # %%
-from recognition.chronicle_recognition import Chronicle
+# from recognition.chronicle_recognition import Chronicle
 from seq_generation.chronicle_generator import *
-from monitoring2 import *
+from utils import *
 import pandas as pd
 import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
-from LSTM.LSTMtrainBin  import *
-from LSTM.LSTMmonotoring import *
+from LSTM.pdm_train  import *
+from LSTM.pdm_monitoring import *
 from memory_profiler import memory_usage
 
 from  IPython import display
