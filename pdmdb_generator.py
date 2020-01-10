@@ -60,7 +60,7 @@ class pdmdb_generator(db_generator):
         """
         
         itemgen= item_generator(n=nbitems, fl=fl)
-        seqgen = disturbed_chrosequence_generator() # Create instance of the generator of diturbed sequences
+        seqgen = disturbed_chrosequence_generator() # Create instance of the generator of disturbed sequences
         constrgen = constraint_generator(minstart, maxstart, minduration, maxduration)
         patgen = chronicle_generator(itemgen, constrgen, dc)
         pattern_generator.lpat=lp #change class attribute  

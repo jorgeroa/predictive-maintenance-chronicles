@@ -65,6 +65,26 @@ serialization2(disturbed_sequences,"disturbed_sequences.txt")
 
 # %%
 
+seq_relative = sequences[:]
+disturbed_seq_relative = disturbed_sequences[:]
+
+
+for seq in seq_relative:
+    delta_time = 0
+    for t,e in seq:
+        if delta_time==0:
+            delta_time=t
+        else:
+           delta_time=t-delta_time
+        
+
+
+# Serialize sequences with time
+serialization(sequences,"sequencesT.txt")
+serialization(disturbed_sequences,"disturbed_sequencesT.txt")
+
+# %%
+
 saveobj("sequences.pick",sequences)
 saveobj("disturbed_sequences.pick",disturbed_sequences)
 
@@ -166,10 +186,10 @@ import pdm.pdm_monitoring
 
 def LSTMpred(seqs):
     start_time = time.perf_counter()
-    SS=[anomalydetect([seq],param,model) for seq in seqs]
+    SS=[anomalydetect([seq],param,model) for seq in [seqs[0]]]
     end_time=time.perf_counter()
     le=end_time-start_time
-    return SS,le 
+    return SS 
 
 result=LSTMpred(list(seq_df.sequence))
 # print(result)
