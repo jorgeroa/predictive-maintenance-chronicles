@@ -161,6 +161,7 @@ def anomalydetect(DB_seq,param,mod):
        ############## 
     predicted = []
     predicted_t = []
+    different = []
     for i in range(predict_size):
         if len(ground_truth)<=i:
             continue
@@ -170,23 +171,35 @@ def anomalydetect(DB_seq,param,mod):
         #print("encode",end1-start_time,"model",end2-end1)
         y_char = y[0]
         y_t = y[1]
+        
+        if y_char!=ground_truth:
+            different.append(y_char)
+            different.append(ground_truth)
+            print("y_char: ",y_char," ground_truth: ",ground_truth)
+        else
+            different.append([]])
+            different.append([]])
+
         for char in y_char:
             prediction = getSymbol(char)              
             predicted.append(prediction)
   
         predicted_t =[max(t[0],0)* divisor for t in y_t ]
+
+    return [ground_truth,predicted,ground_truth_t,predicted_t]
+
         #print(predicted_t,times[2:])
-    if len(line)>0:
-        Sim = 1 - distance.nlevenshtein(str(predicted), str(line[2:]))
-        #print(str(predicted), str(line[2:]),Sim)
-        #for t,d in zip(times[2:],predicted_t):
-        #    print(t,d)
-        Sim_t= [ prob_likelihood(t,d)   for t,d in zip(times[2:],predicted_t) ]
-        #print(Sim_t)
-    #start_time2 = time.perf_counter()
-    #print("end seq",start_time2-start_time0)
-    if  Sim>.8:
-        return functools.reduce (lambda a, b: a * b ,Sim_t,1)
-    else:
-        return 0
+    # if len(line)>0:
+    #     Sim = 1 - distance.nlevenshtein(str(predicted), str(line[2:]))
+    #     #print(str(predicted), str(line[2:]),Sim)
+    #     #for t,d in zip(times[2:],predicted_t):
+    #     #    print(t,d)
+    #     Sim_t= [ prob_likelihood(t,d)   for t,d in zip(times[2:],predicted_t) ]
+    #     #print(Sim_t)
+    # #start_time2 = time.perf_counter()
+    # #print("end seq",start_time2-start_time0)
+    # if  Sim>.8:
+    #     return functools.reduce (lambda a, b: a * b ,Sim_t,1)
+    # else:
+    #     return 0
 

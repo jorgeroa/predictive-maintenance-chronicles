@@ -240,6 +240,11 @@ def read_text_file(filename):
         print('File contains ', len(L), "lines.\n")
         return L
 
+def save_text_file(seqs,filename):
+     with open(ifile%filename, "w+") as fichier:
+        for seq in seqs:
+            fichier.write(str(seq)+'\n')
+
 def serialization(seqs,filename):
      with open(ifile%filename, "w+") as fichier:
         for seq in seqs:
