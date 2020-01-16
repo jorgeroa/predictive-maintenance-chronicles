@@ -45,12 +45,15 @@ def anomalydetect(DB_seq,param,mod):
             if len(seq)==0:
                 continue
             caseids.append(i)
-            lastevnettime=seq[0][0]
-            firsteventtime=seq[0][0]
+            # lastevnettime=seq[0][0]
+            # firsteventtime=seq[0][0]
+            lastevnettime=int(seq[0][0]/60)
+            firsteventtime=int(seq[0][0]/60)
 			
             
  
             for t,e in seq:
+                t=int(t/60)
                 evnts.append(e)
                 times.append(t-lastevnettime)
                 times2.append(t-firsteventtime)
@@ -100,7 +103,8 @@ def anomalydetect(DB_seq,param,mod):
 
             for t, char in enumerate(sentence):
                 #multiset_abstraction = Counter(sentence[:t+1])
-                X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]/divisor] 
+                # X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]/divisor] 
+                X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]] 
         return X
     # define helper functions
     def encode(sentence, times,code, maxlen=maxlen):
@@ -110,7 +114,8 @@ def anomalydetect(DB_seq,param,mod):
         #times2 = np.cumsum(times)
         for t, char in enumerate(sentence):
             #multiset_abstraction = Counter(sentence[:t+1])
-            X[i, t+leftpad ]=code[t]+[t+1 , times[t]/divisor] 
+            # X[i, t+leftpad ]=code[t]+[t+1 , times[t]/divisor] 
+            X[i, t+leftpad ]=code[t]+[t+1 , times[t]] 
         return X
 
     def getSymbol(predictions):
@@ -184,7 +189,8 @@ def anomalydetect(DB_seq,param,mod):
             prediction = getSymbol(char)              
             predicted.append(prediction)
   
-        predicted_t =[max(t[0],0)* divisor for t in y_t ]
+        # predicted_t =[max(t[0],0)* divisor for t in y_t ]
+        predicted_t =[int(round(max(t[0],0))) for t in y_t ]
 
     # return [ground_truth,predicted,ground_truth_t,predicted_t]
 

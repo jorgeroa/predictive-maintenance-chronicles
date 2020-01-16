@@ -102,13 +102,17 @@ def train(DB_seq):
 
     numlines= len(DB_seq)
     for seq in DB_seq: #the rows are "ChID,sequence,TC"
-        lastevnettime=seq[0][0]
-        firsteventtime=seq[0][0]
+        # lastevnettime=seq[0][0]
+        lastevnettime=int(seq[0][0]/60)
+        # firsteventtime=seq[0][0]
+        firsteventtime=int(seq[0][0]/60)
 
         times = []
         times2 = []
         evnts=[] 
         for t,e in seq:
+            # JGT: I added this line to get hours instead of minutes and hence improve time prediction
+            t=int(t/60)
             evnts.append(e)
             times.append(t-lastevnettime)
             times2.append(t-firsteventtime)
@@ -117,6 +121,8 @@ def train(DB_seq):
         timeseqs.append(times)
         timeseqs2.append(times2)
         
+    print("e: ",lines)
+    print("t: ", timeseqs)
 
     ########################################
 
@@ -195,59 +201,25 @@ def train(DB_seq):
     y_t = np.zeros((len(sentences)), dtype=np.float32)
 
 
-    # JGT begin: ***************************
-    # with open('./LSTM/input_data/x.txt', "w+") as fichier:
-        # for seq in seqs:
-        # s=[i[1] for i in seq ]
-    # JGT end: ***************************
-
-    fichier=open('./pdm/input_data/x.txt', "w+")
-    fichier1=open('./pdm/input_data/y_a.txt', "w+")
-    fichier2=open('./pdm/input_data/y_t.txt', "w+")
-
     for i, sentence in enumerate(sentences):
         leftpad = maxlen-len(sentence)
         next_t = next_chars_t[i]
 
         sentence_t = sentences_t[i]
         bb=codelines[i]
-        #b=ce_bin.transform(pd.DataFrame(sentence,columns=['evt']))
-        #bb=b.values.tolist()
         for t, char in enumerate(sentence):
             #multiset_abstraction = Counter(sentence[:t+1])
-            X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]/divisor] 
-            # # s="X[",i,", ",t+leftpad,"] = ",X[i, t+leftpad],"\n"
-            # fichier.write("X[%s, %f] = %c\n" % (i,t+leftpad,str(X[i, t+leftpad])))
-            # # print("X[",i,", ",t+leftpad," ] = ",X[i, t+leftpad ])
+            # X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]/divisor] 
+            X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]] 
 
         y_a[i, target_char_indices[next_chars[i]]] = 1-softness
-        # fichier1.write("y_a[%s, target_char_indices[next_chars[%f]]] = %c\n" % (i,i,str(y_a[i, target_char_indices[next_chars[i]]])))
-        # # print("y_a[",i,", ","target_char_indices[next_chars[",i,"]]]",y_a[i, target_char_indices[next_chars[i]]])
 
-        y_t[i] = next_t/divisor
-        # # s="y_t[",i,"]",y_t[i],"\n"
-        # fichier2.write("y_t[%s] = %f\n" % (i,str(y_t[i])))
-        # # print("y_t[",i,"]",y_t[i])
+        # y_t[i] = next_t/divisor
+        y_t[i] = next_t
 
         np.set_printoptions(threshold=sys.maxsize)
 
-    fichier.close()
-    fichier1.close()
-    fichier2.close()
-    """
-    with open('./pdm/output_files/data/X.dictionary', 'wb') as config_file:
-        pickle.dump(X, config_file)
-    
-    with open('./pdm/output_files/data/y_a.dictionary', 'wb') as config_file:
-        pickle.dump(y_a, config_file)
-    
-    with open('./pdm/output_files/data/y_t.dictionary', 'wb') as config_file:
-        pickle.dump(y_t, config_file)
-    
-    X=loadobj1("X.dictionary")
-    y_a=loadobj1("y_a.dictionary")
-    y_t=loadobj1("y_t.dictionary")
-    """
+
     # build the model: 
     print('Build model...')
     print(maxlen)

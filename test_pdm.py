@@ -83,6 +83,11 @@ disturbed_sequencesF=filterseq(disturbed_sequences)
 serialization2(sequencesF,"sequences.txt")
 serialization2(disturbed_sequencesF,"disturbed_sequences.txt")
 # %%
+sequences = loadobj("sequences.pick")
+disturbed_sequences = loadobj("disturbed_sequences.pick")
+
+
+# %%
 # from pdm.pdm_train import *
 print("####### Start of traning ########")
 
