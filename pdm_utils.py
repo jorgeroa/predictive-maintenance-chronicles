@@ -200,7 +200,7 @@ ifile='./pdm/input_data/%s'
 
 def filterseq(DBseq):
     """
-    @JGT: Removes from DBseq all events equal to -1
+    @JGT: Removes from DBseq all events equal to -1 and empty sequences
     """
     seqs=[]
     for seq in DBseq:
