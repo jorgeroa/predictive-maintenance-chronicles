@@ -7,24 +7,24 @@ from pdm_data_generation.pdmdb_generator import *
 
 import pandas as pd
 
-# %% [markdown]
+# %%
 # ############ Generate Data #####################
 # ################################################
-
+ 
 # #########################################
 # Parameters setting for the generator
 n_events = 10   # Number of events
 events_per_pattern = 10  # Number of events per pattern
-constraint_density = 0.1    # Percentaje of connected events that will have constraints (1 means all connections will have constraints, 0 the opposite)
+constraint_density = 0.5    # Percentaje of connected events that will have constraints (1 means all connections will have constraints, 0 the opposite)
 min_start = 0   # Time of minimun start of an event
 min_duration = 1    
-max_duration = 1000    # Max duration for a time constraint (5 hours=60*5=300).
+max_duration = 300    # Max duration for a time constraint (5 hours=60*5=300).
 # #########################################
 
 
 # #########################################
 # Parameters setting for the generation of sequences using the generator
-n_sequences = 1000    # Number of sequences to be generated
+n_sequences = 300    # Number of sequences to be generated
 sequences_mean_lenght = 10  # Maximun length of a sequence
 n_patterns = 1  # Number of patterns to generate
 pattern_coverage = 1 # Percentaje of sequences covering each pattern

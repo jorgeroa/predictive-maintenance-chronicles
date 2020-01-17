@@ -35,7 +35,7 @@ seq_df.label=pd.Series(len(disturbed_sequences[:])*[0])
 
 def LSTMpred(seqs):
     start_time = time.perf_counter()
-    SS=[anomalydetect([seq],param,model) for seq in [seqs[0]]]
+    SS=[anomalydetect([seq],param,model) for seq in seqs]
     end_time=time.perf_counter()
     le=end_time-start_time
     return SS 
@@ -46,3 +46,6 @@ save_text_file(result,"result.txt")
 
 
 
+
+
+# %%

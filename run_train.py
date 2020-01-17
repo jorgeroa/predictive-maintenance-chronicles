@@ -25,6 +25,7 @@ saveobj("history.hist",h)
 
 print("####### End of traning ########")
 
+
 # %%
 ##load model and parameter
 # from keras.models import load_model
@@ -94,3 +95,6 @@ plt.ylabel('mse')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
+
+
+# %%
