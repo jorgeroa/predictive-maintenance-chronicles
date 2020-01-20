@@ -1,7 +1,5 @@
 import re 
 
-ofile='./experiments/output_files/data/%s'
-ifile='./experiments/input_data/%s'
 
 def filterseq(DBseq):
     """
@@ -38,26 +36,26 @@ def read_text_file(filename):
         return L
 
 def save_text_file(seqs,filename):
-     with open(ifile%filename, "w+") as fichier:
+     with open(filename, "w+") as fichier:
         for seq in seqs:
             fichier.write(str(seq)+'\n')
 
 def serialization(seqs,filename):
-     with open(ifile%filename, "w+") as fichier:
+     with open(filename, "w+") as fichier:
         for seq in seqs:
             fichier.write(str(seq).strip('[]')+'\n')
             
 def serialization2(seqs,filename):
-     with open(ifile%filename, "w+") as fichier:
+     with open(filename, "w+") as fichier:
         for seq in seqs:
             s=[i[1] for i in seq ]
             fichier.write(str(s).strip('[]')+'\n')
 import pickle          
 def saveobj(filename,obj):
-    with open(ofile% filename, 'wb') as config_file:
+    with open(filename, 'wb') as config_file:
         pickle.dump(obj, config_file)
         
 def loadobj(filename):
-    with open(ofile% filename, 'rb') as config_file:
+    with open(filename, 'rb') as config_file:
         return pickle.load(config_file)
 

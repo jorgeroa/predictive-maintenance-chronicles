@@ -10,34 +10,46 @@ from keras.models import load_model
 
 from matplotlib import pyplot as plt
 
+# %%
+
+# Set path variables
+ofile='./experiments/output_files/data/%s'
+ifile='./experiments/input_data/%s'
+model_path='./experiments/model/%s'
+model_name='model.h5'
+config_name='config.dictionary'
 
 # %%
-sequences = loadobj("sequences.pick")
-disturbed_sequences = loadobj("disturbed_sequences.pick")
+
+# Load sequences generated with the PdM generator
+sequences = loadobj(ofile% "sequences.pick")
+disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
 
 
 # %%
-# from pdm.pdm_train import *
-print("####### Start of traning ########")
+
+# Start training
+print("####### Start traning ########")
 
 h=train(sequences)
-saveobj("history.hist",h)
+saveobj(model_path% "history.hist",h)
 
-print("####### End of traning ########")
+print("####### End traning ########")
 
 
 # %%
 ##load model and parameter
-# from keras.models import load_model
 
-model = load_model('./pdm/output_files/model.h5')
-with open('./pdm/output_files/config.dictionary', 'rb') as config_file:
+model = load_model(model_path% model_name)
+with open(model_path% config_name, 'rb') as config_file:
     param = pickle.load(config_file)
 # %%
-# summarize history for loss
-h1=loadobj("history.hist")
-history=h1
 
+# If the model was just trained jump to the next cell. There is no need to reload the history from a file.
+# Load history if the model is saved in a file.
+history=loadobj(model_path% "history.hist")
+
+# %%
 print("*********************************")
 print("*********************************")
 print("*********************************")

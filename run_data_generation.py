@@ -8,6 +8,12 @@ from pdm_data_generation.pdmdb_generator import *
 import pandas as pd
 
 # %%
+
+# Set path variables
+ofile='./experiments/output_files/data/%s'
+ifile='./experiments/input_data/%s'
+
+# %%
 # ############ Generate Data #####################
 # ################################################
  
@@ -79,29 +85,29 @@ disturbed_sequences=filterseq(disturbed_sequences)
 # %%
 
 # Serialize sequences of events
-serialization2(sequences,"sequences.txt")
-serialization2(disturbed_sequences,"disturbed_sequences.txt")
+serialization2(sequences,ifile% "sequences.txt")
+serialization2(disturbed_sequences, ifile% "disturbed_sequences.txt")
 
 # %%
 
 # Serialize sequences of events with time
-serialization(sequences,"sequencesT.txt")
-serialization(disturbed_sequences,"disturbed_sequencesT.txt")
+serialization(sequences, ifile% "sequencesT.txt")
+serialization(disturbed_sequences, ifile% "disturbed_sequencesT.txt")
 
 # %%
 
 # Save the sequences in objects so that they can be reused later
-saveobj("sequences.pick",sequences)
-saveobj("disturbed_sequences.pick",disturbed_sequences)
+saveobj( ofile% "sequences.pick",sequences)
+saveobj( ofile% "disturbed_sequences.pick",disturbed_sequences)
 
 # %%
-sequences = loadobj("sequences.pick")
-disturbed_sequences = loadobj("disturbed_sequences.pick")
+sequences = loadobj(ofile% "sequences.pick")
+disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
 
 # %%
 
-sequences = loadobj("sequences.pick")
-disturbed_sequences = loadobj("disturbed_sequences.pick")
+sequences = loadobj(ofile% "sequences.pick")
+disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
 
 print("======== SEQUENCES =======")
 seq_df=pd.DataFrame({'sequence':[], 'label':[]})
