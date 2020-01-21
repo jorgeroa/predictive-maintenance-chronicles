@@ -104,26 +104,35 @@ saveobj( ofile% "disturbed_sequences.pick",disturbed_sequences)
 sequences = loadobj(ofile% "sequences.pick")
 disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
 
+
 # %%
 
-sequences = loadobj(ofile% "sequences.pick")
-disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
+to_csv(sequences,ofile% "sequences.csv")
 
-print("======== SEQUENCES =======")
-seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-seq_df.sequence=pd.Series(disturbed_sequences[:])
-# nbseq=len(seq_df.sequence)
+# %%
 
-seq_df.label=pd.Series(len(disturbed_sequences[:])*[0])
-# print(seq_df.shape)
-# print(seq_df.head(10))
+# sequences = loadobj(ofile% "sequences.pick")
+# disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
 
+# print("======== SEQUENCES =======")
+# seq_df=pd.DataFrame({'sequence':[], 'label':[]})
+# seq_df.sequence=pd.Series(disturbed_sequences[:])
+# # nbseq=len(seq_df.sequence)
 
+# seq_df.label=pd.Series(len(disturbed_sequences[:])*[0])
+# # print(seq_df.shape)
+# # print(seq_df.head(10))
 
 # %% [markdown]
+
+# ######### ANALIZE GENERATED DATA ##########
+
+
+# %%
+
 # ############### Data Frame #################
 # ###########################################
-# %%
+
 nbitems=50 #nb vocab
 seqlen=10 #len ch
 # p_seq0=[]
@@ -148,23 +157,86 @@ for i,seq in enumerate(DB_seq): #the rows are "ChID,sequence,TC"
 print(len(events))
 print(len(times))
 # seq_df=pd.DataFrame({'event':events, 'time':times})
-seq_df=pd.DataFrame({'event':[], 'time':[]})
-s=seq_df.event=pd.Series(events)
-seq_df.time=pd.Series(times)
+seq_df=pd.DataFrame({'event':events, 'time':times})
 
-# seq_df.sequence=pd.Series(DB_seq[:]+p_seq0[:]+p_seq1[:])
+seq_df.head()
 
-s.value_counts()
-# seq_df.plot(kind='bar')
+# s=seq_df.event=pd.Series(events)
+# seq_df.time=pd.Series(times)
+
+# # seq_df.sequence=pd.Series(DB_seq[:]+p_seq0[:]+p_seq1[:])
+
+# s.value_counts()
+# # seq_df.plot(kind='bar')
+
+
+# %%
+
+from matplotlib import pyplot
+
+seq_df.plot()
+pyplot.show()
+# %%
+
+from matplotlib import pyplot
+
+from pandas import read_csv
+from pandas import Grouper
+from pandas import DataFrame
+from pandas import to_datetime
+
+import numpy as np
+
+series = read_csv(ofile% "sequences.csv", index_col=0)
+
+groups = series.groupby('Event')
+# groups.first()
+events = DataFrame()
+
+for name, group in groups:
+    # tvalues = []
+    # for e in group:
+    #     tvalues.extend(e)
+    # events[name] = [i[0] for i in group.values]
+    events[name] = np.asarray(group['Event'])
+
+events.plot(subplots=True, legend=False)
+pyplot.show()
+
+# # series.set_index('Id', inplace=True)
+# series.groupby('Event')['Time'].plot(subplots=True, legend=False)
+# pyplot.show()
+
+
+#  %%
+series = read_csv(ofile% "sequences.csv")
+
+axes = series.plot.line(subplots=True)
+type(axes)
+
+# lines = series.plot.line(x='Time', y='Event')
+
+# %%
+series.hist()
+pyplot.show()
+
+series.plot(kind='kde')
+pyplot.show()
+series['Time'].plot(kind='kde')
+pyplot.show()
+series['Event'].plot(kind='kde')
+pyplot.show()
+#  %%
+
 
 # %%
 
 print("======== SEQUENCES =======")
 seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-seq_df.sequence=pd.Series(disturbed_sequences[:])
+seq_df.sequence=pd.Series(sequences[:])
 # nbseq=len(seq_df.sequence)
 
-seq_df.label=pd.Series(len(disturbed_sequences[:])*[0])
+seq_df.label=pd.Series(len(sequences[:])*[0])
 # print(seq_df.shape)
 # print(seq_df.head(10))
 

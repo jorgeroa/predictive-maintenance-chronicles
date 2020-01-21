@@ -1,5 +1,5 @@
 import re 
-
+import pickle          
 
 def filterseq(DBseq):
     """
@@ -50,7 +50,7 @@ def serialization2(seqs,filename):
         for seq in seqs:
             s=[i[1] for i in seq ]
             fichier.write(str(s).strip('[]')+'\n')
-import pickle          
+
 def saveobj(filename,obj):
     with open(filename, 'wb') as config_file:
         pickle.dump(obj, config_file)
@@ -58,4 +58,18 @@ def saveobj(filename,obj):
 def loadobj(filename):
     with open(filename, 'rb') as config_file:
         return pickle.load(config_file)
+
+def to_csv(seqs,filename):
+    with open(filename, "w+") as f:
+        # f.write('\"Id\",\"Time\",\"Event\"\n')
+        f.write('\"Time\",\"Event\"\n')
+        i=1
+        for seq in seqs: #the rows are "ChID,sequence,TC"
+            if len(seq)==0:
+                continue
+            for t,e in seq:
+                # f.write(str(i)+','+str(t)+','+str(e)+'\n')
+                f.write(str(t)+','+str(e)+'\n')
+                i=i+1
+
 
