@@ -33,8 +33,11 @@ print("####### End traning ########")
 ##load model and parameter
 
 model = load_model(f_model)
-with open(f_config, 'rb') as config_file:
-    param = pickle.load(config_file)
+param = loadobj(f_config)
+
+# TODO: After the training there should be a testing process here:
+# It's important to check precision, recall, and F1
+
 # %%
 
 # If the model was just trained jump to the next cell. There is no need to reload the history from a file.

@@ -20,6 +20,8 @@ import pickle
 import category_encoders as ce
 import pandas as pd
 
+from data_utils import *
+
 from datetime import datetime
 from math import log
 
@@ -32,15 +34,10 @@ config = tf.ConfigProto(device_count={'GPU':1})
 sess = tf.Session(config = config)
 K.set_session(sess)
 
-
-
-
 if tf.test.gpu_device_name():
     print('GPU found')
 else:
     print("No GPU found")
-
-
 
 # if __name__ == "__main__":
 #     #from LSTMpredict import *
@@ -60,10 +57,6 @@ class modelparameter:
         return '{0}{1}{2}{3}{4}{5}{6}{7}'.format(self.divisor,self.divisor2,self.maxlen,self.target_chars,self.target_char_indices,self.target_indices_char,self.char_indices,self.chars)
         
   
-def loadobj1(filename):
-    with open("./pdm/output_files/data/%s"% filename, 'rb') as config_file:
-        return pickle.load(config_file)
-
 def extract(input):  
      # \d+ is a regular expression which means 
      # one or more digit 
@@ -78,18 +71,6 @@ def extract(input):
         l.append((numbers[i],numbers[i+1]))
     return [ s for s in l if len(s)!=0]
 
-def read_text_file(filename):
-    print('Reading file ' + filename + "...")
-    with open(filename, "r", encoding='utf8') as textfile:
-        L = []
-        for line in textfile:
-            L.append(line.strip())
-        print('File contains ', len(L), "lines.\n")
-        return L
-
-#lignes =seq ch+!
-#timeseqs= TC0
-#timeseqs2=TC1
 def train(DB_seq):
 
     lines = [] #these are all the activity seq
@@ -102,17 +83,17 @@ def train(DB_seq):
 
     numlines= len(DB_seq)
     for seq in DB_seq: #the rows are "ChID,sequence,TC"
-        # lastevnettime=seq[0][0]
-        lastevnettime=int(seq[0][0]/60)
-        # firsteventtime=seq[0][0]
-        firsteventtime=int(seq[0][0]/60)
+        lastevnettime=seq[0][0]
+        # lastevnettime=int(seq[0][0]/60)
+        firsteventtime=seq[0][0]
+        # firsteventtime=int(seq[0][0]/60)
 
         times = []
         times2 = []
         evnts=[] 
         for t,e in seq:
             # JGT: I added this line to get hours instead of minutes and hence improve time prediction
-            t=int(t/60)
+            # t=int(t/60)
             evnts.append(e)
             times.append(t-lastevnettime)
             times2.append(t-firsteventtime)
@@ -131,10 +112,7 @@ def train(DB_seq):
     divisor2 = np.mean([item for sublist in timeseqs2 for item in sublist]) #average time between current and first events
     print('divisor2: {}'.format(divisor2))
 
-
-
     #########################################################################################################
-
 
     step = 1
     sentences = []
@@ -159,8 +137,9 @@ def train(DB_seq):
     ######### save parameters ###########
     print(divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars)
     m=modelparameter(divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars)
-    with open('./pdm/output_files/config.dictionary', 'wb') as config_file:
-        pickle.dump(m, config_file)
+    saveobj(f_config,m)
+    # with open('./pdm/output_files/config.dictionary', 'wb') as config_file:
+    #     pickle.dump(m, config_file)
     
     #####################################
     
@@ -251,7 +230,7 @@ def train(DB_seq):
                     # metrics={'act_output': 'accuracy', 'time_output': ['accuracy', 'mse']})
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=42)
-    model_checkpoint = ModelCheckpoint('./pdm/output_files/model.h5', 
+    model_checkpoint = ModelCheckpoint(f_model, 
                                         monitor='val_loss', 
                                         verbose=0, 
                                         save_best_only=True, 
@@ -269,27 +248,9 @@ def train(DB_seq):
                                     min_lr=0.001)
 
     # JGT:
-    tensorboard_callback = keras.callbacks.TensorBoard(log_dir='./pdm/output_files/summary',histogram_freq=1)
+    tensorboard_callback = keras.callbacks.TensorBoard(log_dir=fold_model_summary,histogram_freq=1)
 
     print("model.fit()",time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()))
-
-
-    # seq_df=pd.DataFrame({'X':[], 'y_a':[], 'y_t':[]})
-    # seq_df.X=pd.Series(X)
-    # seq_df.y_a=pd.Series(y_a)
-    # seq_df.y_t=pd.Series(y_t)
-
-    # seq_df.head()
-    # # seq_df.index
-    # # seq_df.index
-    # # seq_df.describe()
-    # # seq_df['sequence']
-    # # seq_df.iloc[3]
-
-    # # train_stats = seq_df.describe()
-    # # train_stats.pop("sequence")
-    # # train_stats = train_stats.transpose()
-    # # train_stats
 
     h=model.fit(X, {'act_output':y_a, 'time_output':y_t}, 
                     validation_split=0.2, 
@@ -300,56 +261,3 @@ def train(DB_seq):
 
 
     return h
-
-if __name__ == "__main__":
-    """
-    p_seq=[[(115, 3), (116, 19), (446, 16), (538, 5), (669, 1), (735, 5), (779, 13), (801, 14), (819, 0)],
-    [(148, 3), (148, 8), (162, 12), (169, 19), (316, 6), (655, 12), (895, 6), (984, 2)],
-    [(63, 15), (135, 3), (313, 3), (371, 19), (434, 14), (840, 7), (882, 11), (902, 3)],
-    [(84, 18), (109, 12), (243, 7), (381, 11), (396, 3), (465, 19), (484, 2), (530, 2), (673, 6), (784, 15), (992, 5)],
-    [(59, 9), (74, 7), (410, 3), (459, 19), (510, 11), (526, 9), (576, 11), (755, 19), (906, 12)]]
-
-    #divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars=train(p_seq)
-    #print(divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars)
-
-    divisor=91.86666666666666 
-    divisor2=392.73333333333335
-    maxlen=45
-    target_chars=[0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18, 19]
-    target_char_indices = {0: 0, 1: 1, 2: 2, 3: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 11: 9, 12:10, 13: 11, 14: 12, 15: 13, 16: 14, 18: 15, 19: 16} 
-    target_indices_char={0: 0, 1: 1, 2: 2, 3: 3, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 11, 10: 12, 11: 13, 12: 14, 13: 15, 14: 16, 15: 18, 16: 19} 
-    char_indices={0: 0, 1: 1, 2: 2, 3: 3, 5: 4, 6: 5, 7: 6, 8: 7, 9: 8, 11: 9, 12: 10, 13: 11, 14: 12, 15: 13, 16: 14, 18: 15, 19: 16}
-    chars= [0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14,15, 16, 18, 19]
-    
-
-    #predict(p_seq,divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars)
-    SS=[anomalydetect([seq],divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars) for seq in p_seq]
-    print(SS)
-    
-    DB=read_text_file("./LSTM/input_data/data.txt")
-    trainseq=[ extract(line) for line in DB ]
-    divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars=train(trainseq)
-    #divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars=104.10958904109589, 357.027397260274, 73, [0, 2, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], {0: 0, 2: 1, 5: 2, 6: 3, 7: 4, 8: 5, 10: 6, 11: 7, 12: 8, 13: 9, 14: 10, 15: 11, 16: 12, 17: 13, 18: 14, 19: 15}, {0: 0, 1: 2, 2: 5, 3: 6, 4: 7, 5: 8, 6: 10, 7: 11, 8: 12, 9: 13, 10: 14, 11: 15, 12: 16, 13: 17, 14: 18, 15: 19}, {0: 0, 2: 1, 5: 2, 6: 3, 7: 4, 8: 5, 10: 6, 11: 7, 12: 8, 13: 9, 14: 10, 15: 11, 16: 12, 17: 13, 18: 14, 19: 15}, [0, 2, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-    print(divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars)
-    SS=[anomalydetect([seq],divisor,divisor2,maxlen,target_chars,target_char_indices,target_indices_char,char_indices,chars) for seq in trainseq]
-    print(SS)
-
-
-
-
-
-    l1 = LSTM(200, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(main_input) # the shared layer
-    b1 = BatchNormalization()(l1)
-    l2 = LSTM(200, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b1) # the shared layer
-    b2 = BatchNormalization()(l2)
-    l3 = LSTM(200, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b2) # the shared layer
-    b3 = BatchNormalization()(l3)
-    l2_10 = LSTM(400, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b3)
-    b2_10 = BatchNormalization()(l2_10)
-    l2_20 = LSTM(400, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b2_10)
-    b2_20 = BatchNormalization()(l2_20)
-    l2_1 = LSTM(400, implementation=2, kernel_initializer='glorot_uniform', return_sequences=False, dropout=0.2)(b2_20) # the layer specialized in activity prediction
-    b2_1 = BatchNormalization()(l2_1)
-    l2_2 = LSTM(200, implementation=2, kernel_initializer='glorot_uniform', return_sequences=False, dropout=0.2)(b3) # the layer specialized in time prediction
-    b2_2 = BatchNormalization()(l2_2)
-    """

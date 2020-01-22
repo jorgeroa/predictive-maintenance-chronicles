@@ -48,6 +48,7 @@ f_current_history = fold_current_model + "/history.pick"
 # Parameters for generating experiments of different neural network models
 imodel = 1
 fold_model = "pdm/experiments/model{0}".format(imodel)
+fold_model_summary = "pdm/experiments/model{0}/summary".format(imodel)
 f_model = fold_model + "/model.h5"
 f_config = fold_model + "/config.pick"
 f_history = fold_model + "/history.pick"
