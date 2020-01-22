@@ -174,6 +174,16 @@ seq_df.head()
 
 from matplotlib import pyplot
 
+series = read_csv(ofile% "sequences.csv", header=0, index_col=0)
+
+
+series.hist()
+pyplot.show()
+
+# %%
+
+from matplotlib import pyplot
+
 seq_df.plot()
 pyplot.show()
 # %%
@@ -187,10 +197,10 @@ from pandas import to_datetime
 
 import numpy as np
 
-series = read_csv(ofile% "sequences.csv", index_col=0)
+series = read_csv(ofile% "sequences.csv", header=0, index_col=0)
 
 groups = series.groupby('Event')
-# groups.first()
+# groups.first()}
 events = DataFrame()
 
 for name, group in groups:
@@ -198,14 +208,40 @@ for name, group in groups:
     # for e in group:
     #     tvalues.extend(e)
     # events[name] = [i[0] for i in group.values]
-    events[name] = np.asarray(group['Event'])
+    # events[name] = np.asarray(group['Event'])
+    # print(group['Event'])
+    events[name] = pd.Series(np.asarray(group['Event'].index))
 
-events.plot(subplots=True, legend=False)
+events.plot(subplots=True, legend=True)
 pyplot.show()
 
 # # series.set_index('Id', inplace=True)
 # series.groupby('Event')['Time'].plot(subplots=True, legend=False)
 # pyplot.show()
+# %%
+import itertools
+from pandas import boxplot_frame_groupby
+
+grouped = series.groupby(level='Event')
+boxplot_frame_groupby(grouped)
+
+grouped = series.unstack(level='Event').groupby(level=0, axis=1)
+boxplot_frame_groupby(grouped, subplots=False)
+
+# %%
+import itertools
+from pandas import boxplot_frame_groupby
+
+tuples = [t for t in itertools.product(range(1000), range(4))]
+index = pd.MultiIndex.from_tuples(tuples, names=['lvl0', 'lvl1'])
+data = np.random.randn(len(index),4)
+df = pd.DataFrame(data, columns=list('ABCD'), index=index)
+grouped = df.groupby(level='lvl1')
+boxplot_frame_groupby(grouped)
+
+grouped = df.unstack(level='lvl1').groupby(level=0, axis=1)
+boxplot_frame_groupby(grouped, subplots=False)
+
 
 
 #  %%
