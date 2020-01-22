@@ -14,28 +14,36 @@ ofile='./experiments/output_files/data/%s'
 ifile='./experiments/input_data/%s'
 
 # %%
-# ############ Generate Data #####################
-# ################################################
- 
+# ############ LOAD PARAMETERS FOR DATA GENERATION #####################
+# ######################################################################
+import json
+
+with open('pdm_data_generation/config_generator.json') as json_file:
+    config_data = json.load(json_file)
+
 # #########################################
 # Parameters setting for the generator
-n_events = 10   # Number of events
-events_per_pattern = 10  # Number of events per pattern
-constraint_density = 0.5    # Percentaje of connected events that will have constraints (1 means all connections will have constraints, 0 the opposite)
-min_start = 0   # Time of minimun start of an event
-min_duration = 1    
-max_duration = 300    # Max duration for a time constraint (5 hours=60*5=300).
+n_events = config_data["nEvents"]   # Number of events
+events_per_pattern = config_data["eventsPerPattern"]  # Number of events per pattern
+constraint_density = config_data["constraintDensity"]    # Percentaje of connected events that will have constraints (1 means all connections will have constraints, 0 the opposite)
+min_start = config_data["minStart"]   # Time of minimun start of an event
+min_duration = config_data["minDuration"]    
+max_duration = config_data["maxDuration"]     # Max duration for a time constraint (5 hours=60*5=300).
 # #########################################
 
 
 # #########################################
 # Parameters setting for the generation of sequences using the generator
-n_sequences = 300    # Number of sequences to be generated
-sequences_mean_lenght = 10  # Maximun length of a sequence
-n_patterns = 1  # Number of patterns to generate
-pattern_coverage = 1 # Percentaje of sequences covering each pattern
+n_sequences = config_data["nSequences"]     # Number of sequences to be generated
+sequences_mean_lenght = config_data["sequencesMeanLenght"]   # Maximun length of a sequence
+n_patterns = config_data["nPatterns"]   # Number of patterns to generate
+pattern_coverage = config_data["patternCoverage"]  # Percentaje of sequences covering each pattern
 # #########################################
 
+
+# %%
+# ############ Generate Data #####################
+# ################################################
 # nbitems: number of events // lp: number of events per pattern
 generator=pdmdb_generator(nbitems=n_events, 
                             lp=events_per_pattern, 
@@ -75,30 +83,62 @@ disturbed_sequences=[s.seq for s in disturbed_chro_sequences]
 
 # %%
 
-# Removes from sequences and disturbed_sequences all events equal to -1
+# Removes from sequences and disturbed_sequences all events equal to -1 and empty sequences
 sequences=filterseq(sequences)
 disturbed_sequences=filterseq(disturbed_sequences)
+
 # %% [markdown]
 # ############ Saves Data #####################
-# ################################################
+# #############################################
 
-# %%
+#  %%
+
+# ###################### SERIALIZATION #########################
+# saveobj("generator{0}/bin_seqs/seq{0}.dict".format(iexp,iseq),variable_name)
+
+# ############# SAVE GENERATORS #################
+iexp = 0   # Current experiment 
+fold_exp = "experiments"
+fold_gen = fold_exp+"/generator{0}/gen.dict"
+fold_chro = fold_exp+"/generator{0}/chro.dict"
+fold_dist_chro = fold_exp+"/generator{0}/chro.dict"
+
+saveobj(fold_gen.format(iexp),generator)
+saveobj(fold_chro.format(iexp),chro_sequences)
+saveobj(fold_dist_chro.format(iexp),disturbed_chro_sequences)
+
+# ############# SAVE SEQUENCES #################
+iseq = 0 # Current sequence gen
+
+saveobj(fold_gen.format(iexp)+"/seq{0}_normal.pick".format(iseq),sequences)
+saveobj(fold_gen.format(iexp)+"/seq{0}_disturbed.pick".format(iseq),disturbed_sequences)
 
 # Serialize sequences of events
-serialization2(sequences,ifile% "sequences.txt")
-serialization2(disturbed_sequences, ifile% "disturbed_sequences.txt")
-
-# %%
+serialization2(sequences,fold_gen.format(iexp)+"/seq{0}_normal.txt".format(iseq))
+serialization2(disturbed_sequences, fold_gen.format(iexp)+"seq{0}_disturbed.txt".format(iseq))
 
 # Serialize sequences of events with time
-serialization(sequences, ifile% "sequencesT.txt")
-serialization(disturbed_sequences, ifile% "disturbed_sequencesT.txt")
+serialization2(sequences,fold_gen.format(iexp)+"/seq{0}_normal_time.txt")
+serialization2(disturbed_sequences, fold_gen.format(iexp)+"seq{0}_disturbed_time.txt")
 
-# %%
 
-# Save the sequences in objects so that they can be reused later
-saveobj( ofile% "sequences.pick",sequences)
-saveobj( ofile% "disturbed_sequences.pick",disturbed_sequences)
+# # %%
+
+# # Serialize sequences of events
+# serialization2(sequences,ifile% "sequences.txt")
+# serialization2(disturbed_sequences, ifile% "disturbed_sequences.txt")
+
+# # %%
+
+# # Serialize sequences of events with time
+# serialization(sequences, ifile% "sequencesT.txt")
+# serialization(disturbed_sequences, ifile% "disturbed_sequencesT.txt")
+
+# # %%
+
+# # Save the sequences in objects so that they can be reused later
+# saveobj( ofile% "sequences.pick",sequences)
+# saveobj( ofile% "disturbed_sequences.pick",disturbed_sequences)
 
 # %%
 sequences = loadobj(ofile% "sequences.pick")
