@@ -8,12 +8,6 @@ from pdm_data_generation.pdmdb_generator import *
 import pandas as pd
 
 # %%
-
-# Set path variables
-ofile='./experiments/output_files/data/%s'
-ifile='./experiments/input_data/%s'
-
-# %%
 # ############ LOAD PARAMETERS FOR DATA GENERATION #####################
 # ######################################################################
 import json
@@ -97,71 +91,35 @@ disturbed_sequences=filterseq(disturbed_sequences)
 # saveobj("generator{0}/bin_seqs/seq{0}.dict".format(iexp,iseq),variable_name)
 
 # ############# SAVE GENERATORS #################
-iexp = 0   # Current experiment 
-fold_exp = "experiments"
-fold_gen = fold_exp+"/generator{0}/gen.dict"
-fold_chro = fold_exp+"/generator{0}/chro.dict"
-fold_dist_chro = fold_exp+"/generator{0}/chro.dict"
 
-saveobj(fold_gen.format(iexp),generator)
-saveobj(fold_chro.format(iexp),chro_sequences)
-saveobj(fold_dist_chro.format(iexp),disturbed_chro_sequences)
+saveobj(f_generator_bin,generator)
+saveobj(f_chronicles_bin,chro_sequences)
+saveobj(f_disturbed_chronicles_bin,disturbed_chro_sequences)
 
 # ############# SAVE SEQUENCES #################
-iseq = 0 # Current sequence gen
-
-saveobj(fold_gen.format(iexp)+"/seq{0}_normal.pick".format(iseq),sequences)
-saveobj(fold_gen.format(iexp)+"/seq{0}_disturbed.pick".format(iseq),disturbed_sequences)
+saveobj(f_seq_normal_bin,sequences)
+saveobj(f_seq_disturbed_bin,disturbed_sequences)
 
 # Serialize sequences of events
-serialization2(sequences,fold_gen.format(iexp)+"/seq{0}_normal.txt".format(iseq))
-serialization2(disturbed_sequences, fold_gen.format(iexp)+"seq{0}_disturbed.txt".format(iseq))
+serialization2(sequences,f_seq_normal_txt)
+serialization2(disturbed_sequences,f_seq_disturbed_txt)
 
 # Serialize sequences of events with time
-serialization2(sequences,fold_gen.format(iexp)+"/seq{0}_normal_time.txt")
-serialization2(disturbed_sequences, fold_gen.format(iexp)+"seq{0}_disturbed_time.txt")
+serialization2(sequences,f_seq_normal_time_txt)
+serialization2(disturbed_sequences, f_seq_disturbed_time_txt)
 
-
-# # %%
-
-# # Serialize sequences of events
-# serialization2(sequences,ifile% "sequences.txt")
-# serialization2(disturbed_sequences, ifile% "disturbed_sequences.txt")
-
-# # %%
-
-# # Serialize sequences of events with time
-# serialization(sequences, ifile% "sequencesT.txt")
-# serialization(disturbed_sequences, ifile% "disturbed_sequencesT.txt")
-
-# # %%
-
-# # Save the sequences in objects so that they can be reused later
-# saveobj( ofile% "sequences.pick",sequences)
-# saveobj( ofile% "disturbed_sequences.pick",disturbed_sequences)
-
+# %% [markdown]
+# ############ LOAD DATA #####################
+# #############################################
 # %%
-sequences = loadobj(ofile% "sequences.pick")
-disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
+
+sequences = loadobj(f_seq_normal_bin)
+disturbed_sequences = loadobj(f_seq_disturbed_bin)
 
 
 # %%
 
-to_csv(sequences,ofile% "sequences.csv")
-
-# %%
-
-# sequences = loadobj(ofile% "sequences.pick")
-# disturbed_sequences = loadobj(ofile% "disturbed_sequences.pick")
-
-# print("======== SEQUENCES =======")
-# seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-# seq_df.sequence=pd.Series(disturbed_sequences[:])
-# # nbseq=len(seq_df.sequence)
-
-# seq_df.label=pd.Series(len(disturbed_sequences[:])*[0])
-# # print(seq_df.shape)
-# # print(seq_df.head(10))
+to_csv(sequences, f_seq_normal_csv)
 
 # %% [markdown]
 
@@ -173,60 +131,47 @@ to_csv(sequences,ofile% "sequences.csv")
 # ############### Data Frame #################
 # ###########################################
 
-nbitems=50 #nb vocab
-seqlen=10 #len ch
-# p_seq0=[]
-# p_seq1=[]
-DB_seq=sequences[:]
+# nbitems=50 #nb vocab
+# seqlen=10 #len ch
+# # p_seq0=[]
+# # p_seq1=[]
+# DB_seq=sequences[:]
 
-# DB_seq[:]+p_seq0[:]+p_seq1[:]
+# # DB_seq[:]+p_seq0[:]+p_seq1[:]
 
-times = []
-events=[]
+# times = []
+# events=[]
 
-for i,seq in enumerate(DB_seq): #the rows are "ChID,sequence,TC"
-    if len(seq)==0:
-        continue
-    for t,e in seq:
-        events.append(e)
-        times.append(t)
+# for i,seq in enumerate(DB_seq): #the rows are "ChID,sequence,TC"
+#     if len(seq)==0:
+#         continue
+#     for t,e in seq:
+#         events.append(e)
+#         times.append(t)
 
-    # lines.append(evnts)
-    # timeseqs.append(times)
+#     # lines.append(evnts)
+#     # timeseqs.append(times)
 
-print(len(events))
-print(len(times))
+# print(len(events))
+# print(len(times))
+# # seq_df=pd.DataFrame({'event':events, 'time':times})
 # seq_df=pd.DataFrame({'event':events, 'time':times})
-seq_df=pd.DataFrame({'event':events, 'time':times})
 
-seq_df.head()
+# seq_df.head()
 
-# s=seq_df.event=pd.Series(events)
-# seq_df.time=pd.Series(times)
+# # s=seq_df.event=pd.Series(events)
+# # seq_df.time=pd.Series(times)
 
-# # seq_df.sequence=pd.Series(DB_seq[:]+p_seq0[:]+p_seq1[:])
+# # # seq_df.sequence=pd.Series(DB_seq[:]+p_seq0[:]+p_seq1[:])
 
-# s.value_counts()
-# # seq_df.plot(kind='bar')
+# # s.value_counts()
+# # # seq_df.plot(kind='bar')
 
 
 # %%
 
-from matplotlib import pyplot
-
-series = read_csv(ofile% "sequences.csv", header=0, index_col=0)
-
-
-series.hist()
-pyplot.show()
-
-# %%
-
-from matplotlib import pyplot
-
-seq_df.plot()
-pyplot.show()
-# %%
+# ############### DATA ANALYSIS #################
+# ###############################################
 
 from matplotlib import pyplot
 
@@ -237,74 +182,143 @@ from pandas import to_datetime
 
 import numpy as np
 
-series = read_csv(ofile% "sequences.csv", header=0, index_col=0)
+#   Load data from csv
+series = read_csv(f_seq_normal_csv, header=0, index_col=0)
+
+#  %%
+
+series.hist()
+pyplot.show()
+
+# %%
 
 groups = series.groupby('Event')
 # groups.first()}
 events = DataFrame()
 
 for name, group in groups:
-    # tvalues = []
-    # for e in group:
-    #     tvalues.extend(e)
-    # events[name] = [i[0] for i in group.values]
-    # events[name] = np.asarray(group['Event'])
-    # print(group['Event'])
     events[name] = pd.Series(np.asarray(group['Event'].index))
 
 events.plot(subplots=True, legend=True)
 pyplot.show()
 
-# # series.set_index('Id', inplace=True)
-# series.groupby('Event')['Time'].plot(subplots=True, legend=False)
-# pyplot.show()
-# %%
-import itertools
-from pandas import boxplot_frame_groupby
-
-grouped = series.groupby(level='Event')
-boxplot_frame_groupby(grouped)
-
-grouped = series.unstack(level='Event').groupby(level=0, axis=1)
-boxplot_frame_groupby(grouped, subplots=False)
 
 # %%
-import itertools
-from pandas import boxplot_frame_groupby
 
-tuples = [t for t in itertools.product(range(1000), range(4))]
-index = pd.MultiIndex.from_tuples(tuples, names=['lvl0', 'lvl1'])
-data = np.random.randn(len(index),4)
-df = pd.DataFrame(data, columns=list('ABCD'), index=index)
-grouped = df.groupby(level='lvl1')
-boxplot_frame_groupby(grouped)
-
-grouped = df.unstack(level='lvl1').groupby(level=0, axis=1)
-boxplot_frame_groupby(grouped, subplots=False)
-
-
-
-#  %%
-series = read_csv(ofile% "sequences.csv")
-
-axes = series.plot.line(subplots=True)
-type(axes)
-
-# lines = series.plot.line(x='Time', y='Event')
-
-# %%
-series.hist()
-pyplot.show()
+# Reload data without index=0
+series = read_csv(f_seq_normal_csv, header=0)
 
 series.plot(kind='kde')
 pyplot.show()
-series['Time'].plot(kind='kde')
-pyplot.show()
+print("Density of events")
 series['Event'].plot(kind='kde')
+pyplot.show()
+print("Density of time")
+series['Time'].plot(kind='kde')
 pyplot.show()
 #  %%
 
+groups = series.groupby('Event')
+# groups.first()}
+events = DataFrame()
 
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Event'].index))
+
+events.boxplot()
+pyplot.show()
+
+# %%
+groups = series.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Event'].index))
+
+events = events.T
+pyplot.matshow(events, interpolation=None, aspect='auto')
+pyplot.show()
+
+
+# %%
+
+from pandas.plotting import lag_plot
+
+print("Lag plot Events")
+lag_plot(series["Event"])
+pyplot.show()
+
+print("Lag plot Time")
+lag_plot(series["Time"])
+pyplot.show()
+
+print("Lag plot Relative Time")
+lag_plot(series["Time"]/60)
+pyplot.show()
+
+# %%
+
+from pandas.plotting import lag_plot
+
+groups = series.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Event'].index))
+    print("Lag plot Event for event {0}".format(name))
+    lag_plot(events[name])
+    pyplot.show()
+
+# %%
+
+from pandas.plotting import lag_plot
+
+rel_time = [int(i/60) for i in series['Time']]
+
+groups = series.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
+    events[name] = pd.Series(rel_time)
+    print("Lag plot Event for event {0}".format(name))
+    lag_plot(events[name])
+    pyplot.show()
+
+# %%
+
+from pandas.plotting import autocorrelation_plot
+
+autocorrelation_plot(series)
+pyplot.show()
+
+print("Autocorrelation of Events")
+autocorrelation_plot(series['Event'])
+pyplot.show()
+
+print("Autocorrelation of Time")
+autocorrelation_plot(series['Time'])
+pyplot.show()
+
+# %%
+
+from pandas.plotting import lag_plot
+
+rel_time = [int(i/60) for i in series['Time']]
+
+groups = series.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
+    events[name] = pd.Series(rel_time)
+    print("Lag plot Event for event {0}".format(name))
+    autocorrelation_plot(events[name])
+    pyplot.show()
 # %%
 
 print("======== SEQUENCES =======")

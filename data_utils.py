@@ -1,6 +1,36 @@
 import re 
 import pickle          
 
+
+# ############# PARAMETERS FOR SAVING/LOADING DATA OF EXPERIMENTS #################
+iexp = 1   # The index of the experiment to be performed
+iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
+fold_gen = "experiments/generator{0}"
+
+# Binary files
+f_generator_bin = fold_gen.format(iexp)+"/generator.pick"
+f_chronicles_bin = fold_gen.format(iexp)+"/chronicles.pick"
+f_disturbed_chronicles_bin = fold_gen.format(iexp)+"/disturbed_chronicles.pick"
+
+f_seq_normal_bin = fold_gen.format(iexp)+"/sequences/seq{0}_normal.pick".format(iseq)
+f_seq_disturbed_bin = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.pick".format(iseq)
+
+# Text files
+f_seq_normal_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal.txt".format(iseq)
+f_seq_disturbed_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.txt".format(iseq)
+f_seq_normal_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal_time.txt".format(iseq)
+f_seq_disturbed_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed_time.txt".format(iseq)
+
+# CSV files
+f_seq_normal_csv = fold_gen.format(iexp)+"/sequences/seq{0}_normal.csv".format(iseq)
+
+# Neural network model
+imodel = 1
+fold_model = "pdm/experiments/model{0}".format(imodel)
+f_model = fold_model + "/model{0}.h5".format(imodel)
+f_config = fold_model + "/config{0}.pick".format(imodel)
+f_history = fold_model + "/history{0}.pick".format(imodel)
+
 def filterseq(DBseq):
     """
     @JGT: Removes from DBseq all events equal to -1 and empty sequences
