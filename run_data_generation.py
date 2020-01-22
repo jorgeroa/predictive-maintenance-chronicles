@@ -113,8 +113,8 @@ serialization2(disturbed_sequences, f_seq_disturbed_time_txt)
 # #############################################
 # %%
 
-sequences = loadobj(f_seq_normal_bin)
-disturbed_sequences = loadobj(f_seq_disturbed_bin)
+sequences = loadobj(f_current_seq_normal_bin)
+disturbed_sequences = loadobj(f_current_seq_disturbed_bin)
 
 
 # %%

@@ -2,12 +2,25 @@ import re
 import pickle          
 
 
-# ############# PARAMETERS FOR SAVING/LOADING DATA OF EXPERIMENTS #################
+# ############# PARAMETERS FOR SAVING/LOADING DATA #################
+
+# Parameters for current data used for training/predition
+fold_current_input_data = "pdm/data/input"
+fold_current_output_data = "pdm/data/output"
+
+f_current_seq_normal_bin = fold_current_input_data+"sequences.pick"
+f_current_seq_disturbed_bin = fold_current_input_data+"disturbed_sequences.pick"
+
+f_current_result = fold_current_output_data+"result.txt"
+f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
+
+# Parameters for generating experiments of data generation
+
 iexp = 1   # The index of the experiment to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}"
 
-# Binary files
+# #### Binary files #### 
 f_generator_bin = fold_gen.format(iexp)+"/generator.pick"
 f_chronicles_bin = fold_gen.format(iexp)+"/chronicles.pick"
 f_disturbed_chronicles_bin = fold_gen.format(iexp)+"/disturbed_chronicles.pick"
@@ -15,21 +28,30 @@ f_disturbed_chronicles_bin = fold_gen.format(iexp)+"/disturbed_chronicles.pick"
 f_seq_normal_bin = fold_gen.format(iexp)+"/sequences/seq{0}_normal.pick".format(iseq)
 f_seq_disturbed_bin = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.pick".format(iseq)
 
-# Text files
+# ####  Text files #### 
 f_seq_normal_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal.txt".format(iseq)
 f_seq_disturbed_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.txt".format(iseq)
 f_seq_normal_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal_time.txt".format(iseq)
 f_seq_disturbed_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed_time.txt".format(iseq)
 
-# CSV files
+# #### CSV files #### 
 f_seq_normal_csv = fold_gen.format(iexp)+"/sequences/seq{0}_normal.csv".format(iseq)
 
-# Neural network model
+# ############# PARAMETERS FOR SAVING/LOADING MODELS #################
+# Current neural network model, parameters, history, and summary used for executing PdM
+fold_current_model = "pdm/model"
+fold_current_model_summary = fold_current_model + "/summary"
+f_current_model = fold_current_model + "/model.h5"
+f_current_config = fold_current_model + "/config.pick"
+f_current_history = fold_current_model + "/history.pick"
+
+# Parameters for generating experiments of different neural network models
 imodel = 1
 fold_model = "pdm/experiments/model{0}".format(imodel)
-f_model = fold_model + "/model{0}.h5".format(imodel)
-f_config = fold_model + "/config{0}.pick".format(imodel)
-f_history = fold_model + "/history{0}.pick".format(imodel)
+f_model = fold_model + "/model.h5"
+f_config = fold_model + "/config.pick"
+f_history = fold_model + "/history.pick"
+
 
 def filterseq(DBseq):
     """
