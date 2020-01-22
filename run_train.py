@@ -24,14 +24,14 @@ disturbed_sequences = loadobj(f_seq_disturbed_bin)
 print("####### Start traning ########")
 
 h=train(sequences)
-saveobj(f_model,h)
+saveobj(f_history,h)
 
 print("####### End traning ########")
 
 
 # %%
 ##load model and parameter
-
+saveobj(f_history,h)
 model = load_model(f_model)
 param = loadobj(f_config)
 
