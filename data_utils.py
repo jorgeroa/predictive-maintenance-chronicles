@@ -8,8 +8,8 @@ import pickle
 fold_current_input_data = "pdm/data/input"
 fold_current_output_data = "pdm/data/output"
 
-f_current_seq_normal_bin = fold_current_input_data+"sequences.pick"
-f_current_seq_disturbed_bin = fold_current_input_data+"disturbed_sequences.pick"
+f_current_seq_normal_bin = fold_current_input_data+"/sequences.pick"
+f_current_seq_disturbed_bin = fold_current_input_data+"/disturbed_sequences.pick"
 
 f_current_result = fold_current_output_data+"result.txt"
 f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
@@ -37,6 +37,9 @@ f_seq_disturbed_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed_ti
 # #### CSV files #### 
 f_seq_normal_csv = fold_gen.format(iexp)+"/sequences/seq{0}_normal.csv".format(iseq)
 
+# #### CSV files #### 
+f_config_generation = fold_gen.format(iexp)+"/config_generator.json".format(iseq)
+
 # ############# PARAMETERS FOR SAVING/LOADING MODELS #################
 # Current neural network model, parameters, history, and summary used for executing PdM
 fold_current_model = "pdm/model"
@@ -49,6 +52,8 @@ f_current_history = fold_current_model + "/history.pick"
 imodel = 1
 fold_model = "pdm/experiments/model{0}".format(imodel)
 fold_model_summary = "pdm/experiments/model{0}/summary".format(imodel)
+fold_input_data = "pdm/experiments/model{0}/data/input"
+fold_output_data = "pdm/experiments/model{0}/data/input"
 f_model = fold_model + "/model.h5"
 f_config = fold_model + "/config.pick"
 f_history = fold_model + "/history.pick"
