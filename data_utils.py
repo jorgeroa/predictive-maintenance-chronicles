@@ -16,29 +16,29 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 2   # The index of the experiment (generator) to be performed
+iexp = 11   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
-fold_gen = "experiments/generator{0}"
+fold_gen = "experiments/generator{0}".format(iexp)
 
 # #### Binary files #### 
-f_generator_bin = fold_gen.format(iexp)+"/generator.pick"
-f_chronicles_bin = fold_gen.format(iexp)+"/chronicles.pick"
-f_disturbed_chronicles_bin = fold_gen.format(iexp)+"/disturbed_chronicles.pick"
+f_generator_bin = fold_gen+"/generator.pick"
+f_chronicles_bin = fold_gen+"/chronicles.pick"
+f_disturbed_chronicles_bin = fold_gen+"/disturbed_chronicles.pick"
 
-f_seq_normal_bin = fold_gen.format(iexp)+"/sequences/seq{0}_normal.pick".format(iseq)
-f_seq_disturbed_bin = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.pick".format(iseq)
+f_seq_normal_bin = fold_gen+"/sequences/seq{0}_normal.pick".format(iseq)
+f_seq_disturbed_bin = fold_gen+"/sequences/seq{0}_disturbed.pick".format(iseq)
 
 # ####  Text files #### 
-f_seq_normal_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal.txt".format(iseq)
-f_seq_disturbed_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed.txt".format(iseq)
-f_seq_normal_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_normal_time.txt".format(iseq)
-f_seq_disturbed_time_txt = fold_gen.format(iexp)+"/sequences/seq{0}_disturbed_time.txt".format(iseq)
+f_seq_normal_txt = fold_gen+"/sequences/seq{0}_normal.txt".format(iseq)
+f_seq_disturbed_txt = fold_gen+"/sequences/seq{0}_disturbed.txt".format(iseq)
+f_seq_normal_time_txt = fold_gen+"/sequences/seq{0}_normal_time.txt".format(iseq)
+f_seq_disturbed_time_txt = fold_gen+"/sequences/seq{0}_disturbed_time.txt".format(iseq)
 
 # #### CSV files #### 
-f_seq_normal_csv = fold_gen.format(iexp)+"/sequences/seq{0}_normal.csv".format(iseq)
+f_seq_normal_csv = fold_gen+"/sequences/seq{0}_normal.csv".format(iseq)
 
-# #### CSV files #### 
-f_config_generation = fold_gen.format(iexp)+"/config_generator.json".format(iseq)
+# #### JSON files #### 
+f_config_generation = fold_gen + "/config_generator.json"
 
 # ############# PARAMETERS FOR SAVING/LOADING MODELS #################
 # Current neural network model, parameters, history, and summary used for executing PdM

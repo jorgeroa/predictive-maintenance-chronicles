@@ -12,7 +12,7 @@ import pandas as pd
 # ######################################################################
 import json
 
-with open('pdm_data_generation/config_generator.json') as json_file:
+with open(f_config_generation) as json_file:
     config_data = json.load(json_file)
 
 # #########################################
@@ -125,49 +125,6 @@ to_csv(sequences, f_seq_normal_csv)
 
 # ######### ANALIZE GENERATED DATA ##########
 
-
-# %%
-
-# ############### Data Frame #################
-# ###########################################
-
-# nbitems=50 #nb vocab
-# seqlen=10 #len ch
-# # p_seq0=[]
-# # p_seq1=[]
-# DB_seq=sequences[:]
-
-# # DB_seq[:]+p_seq0[:]+p_seq1[:]
-
-# times = []
-# events=[]
-
-# for i,seq in enumerate(DB_seq): #the rows are "ChID,sequence,TC"
-#     if len(seq)==0:
-#         continue
-#     for t,e in seq:
-#         events.append(e)
-#         times.append(t)
-
-#     # lines.append(evnts)
-#     # timeseqs.append(times)
-
-# print(len(events))
-# print(len(times))
-# # seq_df=pd.DataFrame({'event':events, 'time':times})
-# seq_df=pd.DataFrame({'event':events, 'time':times})
-
-# seq_df.head()
-
-# # s=seq_df.event=pd.Series(events)
-# # seq_df.time=pd.Series(times)
-
-# # # seq_df.sequence=pd.Series(DB_seq[:]+p_seq0[:]+p_seq1[:])
-
-# # s.value_counts()
-# # # seq_df.plot(kind='bar')
-
-
 # %%
 
 # ############### DATA ANALYSIS #################
@@ -205,18 +162,20 @@ pyplot.show()
 
 # %%
 
-# Reload data without index=0
-series = read_csv(f_seq_normal_csv, header=0)
+# # Reload data without index=0
+# series = read_csv(f_seq_normal_csv, header=0)
 
-series.plot(kind='kde')
-pyplot.show()
-print("Density of events")
-series['Event'].plot(kind='kde')
-pyplot.show()
-print("Density of time")
-series['Time'].plot(kind='kde')
-pyplot.show()
+# series.plot(kind='kde')
+# pyplot.show()
+# print("Density of events")
+# series['Event'].plot(kind='kde')
+# pyplot.show()
+# print("Density of time")
+# series['Time'].plot(kind='kde')
+# pyplot.show()
 #  %%
+
+series = read_csv(f_seq_normal_csv, header=0, index_col=0)
 
 groups = series.groupby('Event')
 # groups.first()}
@@ -243,19 +202,18 @@ pyplot.show()
 
 # %%
 
-from pandas.plotting import lag_plot
+# from pandas.plotting import lag_plot
 
-print("Lag plot Events")
-lag_plot(series["Event"])
-pyplot.show()
+# series = read_csv(f_seq_normal_csv, header=0)
 
-print("Lag plot Time")
-lag_plot(series["Time"])
-pyplot.show()
+# print("Lag plot Events")
+# lag_plot(series["Event"])
+# pyplot.show()
 
-print("Lag plot Relative Time")
-lag_plot(series["Time"]/60)
-pyplot.show()
+# print("Lag plot Time")
+# lag_plot(series["Time"])
+# pyplot.show()
+
 
 # %%
 
@@ -267,7 +225,25 @@ events = DataFrame()
 
 for name, group in groups:
     events[name] = pd.Series(np.asarray(group['Event'].index))
-    print("Lag plot Event for event {0}".format(name))
+    print("Lag plot Time for event {0}".format(name))
+    lag_plot(events[name])
+    pyplot.show()
+
+# %%
+
+# REVISAR!!!
+from pandas.plotting import lag_plot
+series = read_csv(f_seq_normal_csv, header=0)
+rel_time = [int(i/60) for i in series['Time']]
+
+series["Time"]=pd.Series(rel_time)
+groups = series.groupby('Time')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Time'].index))
+    print("Lag plot Event for time {0}".format(name))
     lag_plot(events[name])
     pyplot.show()
 
@@ -299,6 +275,7 @@ print("Autocorrelation of Events")
 autocorrelation_plot(series['Event'])
 pyplot.show()
 
+# series = read_csv(f_seq_normal_csv, header=0)
 print("Autocorrelation of Time")
 autocorrelation_plot(series['Time'])
 pyplot.show()
