@@ -83,17 +83,17 @@ def train(DB_seq):
 
     numlines= len(DB_seq)
     for seq in DB_seq: #the rows are "ChID,sequence,TC"
-        lastevnettime=seq[0][0]
-        # lastevnettime=int(seq[0][0]/60)
-        firsteventtime=seq[0][0]
-        # firsteventtime=int(seq[0][0]/60)
+        # lastevnettime=seq[0][0]
+        lastevnettime=int(seq[0][0]/60)
+        # firsteventtime=seq[0][0]
+        firsteventtime=int(seq[0][0]/60)
 
         times = []
         times2 = []
         evnts=[] 
         for t,e in seq:
             # JGT: I added this line to get hours instead of minutes and hence improve time prediction
-            # t=int(t/60)
+            t=int(t/60)
             evnts.append(e)
             times.append(t-lastevnettime)
             times2.append(t-firsteventtime)
@@ -208,9 +208,11 @@ def train(DB_seq):
     l1 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(main_input) # the shared layer
     b1 = BatchNormalization()(l1)
     l2 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b1) # the shared layer
-    # b2 = BatchNormalization()(l2)
+    b2 = BatchNormalization()(l2)
     # l3 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b2) # the shared layer
-    b3 = BatchNormalization()(l2)
+    # b3 = BatchNormalization()(l2)
+    l3 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=True, dropout=0.2)(b2) # the shared layer
+    b3 = BatchNormalization()(l3)
     l2_1 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=False, dropout=0.2)(b3) # the layer specialized in activity prediction
     b2_1 = BatchNormalization()(l2_1)
     l2_2 = LSTM(100, implementation=2, kernel_initializer='glorot_uniform', return_sequences=False, dropout=0.2)(b3) # the layer specialized in time prediction

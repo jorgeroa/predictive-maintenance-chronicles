@@ -15,8 +15,10 @@ from matplotlib import pyplot as plt
 # %%
 
 # # Load sequences generated with the PdM generator
-sequences = loadobj(f_current_seq_normal_bin)
-disturbed_sequences = loadobj(f_current_seq_disturbed_bin)
+# sequences = loadobj(f_current_seq_normal_bin)
+# disturbed_sequences = loadobj(f_current_seq_disturbed_bin)
+sequences = loadobj(f_seq_normal_bin)
+disturbed_sequences = loadobj(f_seq_disturbed_bin)
 
 # %%
 
@@ -37,7 +39,7 @@ print("####### Start traning ########")
 h=train(X_train)
 saveobj(f_history,h)
 
-print("####### End traning ########")
+print("####### End tranin+g ########")
 
 
 # %%
@@ -72,7 +74,8 @@ def LSTMpred(seqs):
 
 result_normal=LSTMpred(list(seq_df.sequence))
 # print(result)
-save_text_file(result_normal, fold_current_input_data+"/result.txt")
+# save_text_file(result_normal, fold_current_input_data+"/result.txt")
+save_text_file(result_normal, fold_input_data+"/result.txt")
 
 # %%
 
@@ -82,8 +85,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
-# from sklearn.metrics import cohen_kappa_score
-# from sklearn.metrics import roc_auc_score
+from sklearn.metrics import cohen_kappa_score
+from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
 
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -115,38 +118,42 @@ print('Recall: %f' % recall)
 f1 = f1_score(y_ev_test, y_ev_truth, average='macro')
 print('F1 score: %f' % f1)
  
-# # kappa
-# kappa = cohen_kappa_score(y_ev_test, yhat_classes)
-# print('Cohens kappa: %f' % kappa)
+# kappa
+kappa = cohen_kappa_score(y_ev_test, y_ev_truth)
+print('Cohens kappa: %f' % kappa)
 # # ROC AUC
 # auc = roc_auc_score(y_ev_test, yhat_probs)
 # print('ROC AUC: %f' % auc)
 
 # confusion matrix
 matrix = confusion_matrix(y_ev_test, y_ev_truth)
-print(matrix)
+matrix
 
+# %%
 # ########################################
 
-# y_t_test = np.array(y_t_test)*60
-# y_t_truth = np.array(y_t_truth)*60
+y_t_test = np.floor(np.array(y_t_test)/60)
+y_t_truth = np.floor(np.array(y_t_truth)/60)
+
+# print(y_t_test)
+# print(y_t_truth)
 
 # accuracy: (tp + tn) / (p + n)
 accuracy = accuracy_score(y_t_test, y_t_truth)
 print('Accuracy: %f' % accuracy)
 # precision tp / (tp + fp)
-precision = precision_score(y_t_test, y_t_truth, average='macro')
+precision = precision_score(y_t_test, y_t_truth, average='weighted')
 print('Precision: %f' % precision)
 # recall: tp / (tp + fn)
-recall = recall_score(y_t_test, y_t_truth, average='macro')
+recall = recall_score(y_t_test, y_t_truth, average='weighted')
 print('Recall: %f' % recall)
 # f1: 2 tp / (2 tp + fp + fn)
-f1 = f1_score(y_t_test, y_t_truth, average='macro')
+f1 = f1_score(y_t_test, y_t_truth, average='weighted')
 print('F1 score: %f' % f1)
  
-# # kappa
-# kappa = cohen_kappa_score(y_t_test, yhat_classes)
-# print('Cohens kappa: %f' % kappa)
+# kappa
+kappa = cohen_kappa_score(y_t_test, y_t_truth)
+print('Cohens kappa: %f' % kappa)
 # # ROC AUC
 # auc = roc_auc_score(y_t_test, yhat_probs)
 # print('ROC AUC: %f' % auc)

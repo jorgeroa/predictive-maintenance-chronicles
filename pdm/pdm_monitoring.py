@@ -45,15 +45,15 @@ def anomalydetect(DB_seq,param,mod):
             if len(seq)==0:
                 continue
             caseids.append(i)
-            # lastevnettime=seq[0][0]
-            # firsteventtime=seq[0][0]
-            lastevnettime=int(seq[0][0]/60)
-            firsteventtime=int(seq[0][0]/60)
+            lastevnettime=seq[0][0]
+            firsteventtime=seq[0][0]
+            # lastevnettime=int(seq[0][0]/60)
+            # firsteventtime=int(seq[0][0]/60)
 			
             
  
             for t,e in seq:
-                t=int(t/60)
+                # t=int(t/60)
                 evnts.append(e)
                 times.append(t-lastevnettime)
                 times2.append(t-firsteventtime)
