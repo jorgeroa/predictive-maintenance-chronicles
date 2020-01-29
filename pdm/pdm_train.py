@@ -83,17 +83,17 @@ def train(DB_seq):
 
     numlines= len(DB_seq)
     for seq in DB_seq: #the rows are "ChID,sequence,TC"
-        # lastevnettime=seq[0][0]
-        lastevnettime=int(seq[0][0]/60)
-        # firsteventtime=seq[0][0]
-        firsteventtime=int(seq[0][0]/60)
+        lastevnettime=seq[0][0]
+        # lastevnettime=round(seq[0][0]/60)
+        firsteventtime=seq[0][0]
+        # firsteventtime=round(seq[0][0]/60)
 
         times = []
         times2 = []
         evnts=[] 
         for t,e in seq:
             # JGT: I added this line to get hours instead of minutes and hence improve time prediction
-            t=int(t/60)
+            # t=round(t/60)
             evnts.append(e)
             times.append(t-lastevnettime)
             times2.append(t-firsteventtime)
@@ -188,13 +188,13 @@ def train(DB_seq):
         bb=codelines[i]
         for t, char in enumerate(sentence):
             #multiset_abstraction = Counter(sentence[:t+1])
-            # X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]/divisor] 
-            X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]] 
+            X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]/divisor] 
+            # X[i, t+leftpad]=bb[t]+[t+1 , sentence_t[t]] 
 
         y_a[i, target_char_indices[next_chars[i]]] = 1-softness
 
-        # y_t[i] = next_t/divisor
-        y_t[i] = next_t
+        y_t[i] = next_t/divisor
+        # y_t[i] = next_t
 
         np.set_printoptions(threshold=sys.maxsize)
 

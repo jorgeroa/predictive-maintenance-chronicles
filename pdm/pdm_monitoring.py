@@ -103,8 +103,8 @@ def anomalydetect(DB_seq,param,mod):
 
             for t, char in enumerate(sentence):
                 #multiset_abstraction = Counter(sentence[:t+1])
-                # X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]/divisor] 
-                X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]] 
+                X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]/divisor] 
+                # X[i, t+leftpad ]=bb[t]+[t+1 , sentence_t[t]] 
         return X
     # define helper functions
     def encode(sentence, times,code, maxlen=maxlen):
@@ -114,8 +114,8 @@ def anomalydetect(DB_seq,param,mod):
         #times2 = np.cumsum(times)
         for t, char in enumerate(sentence):
             #multiset_abstraction = Counter(sentence[:t+1])
-            # X[i, t+leftpad ]=code[t]+[t+1 , times[t]/divisor] 
-            X[i, t+leftpad ]=code[t]+[t+1 , times[t]] 
+            X[i, t+leftpad ]=code[t]+[t+1 , times[t]/divisor] 
+            # X[i, t+leftpad ]=code[t]+[t+1 , times[t]] 
         return X
 
     def getSymbol(predictions):
@@ -124,9 +124,10 @@ def anomalydetect(DB_seq,param,mod):
         i=np.where(predictions == np.amax(predictions))[0]
         symbol = target_indices_char[i[0]]
         return symbol
+    
     def prob_likelihood(t1,t2):
-        lamda=0.0000015
-        #lamda=0.0045
+        #lamda=0.0000015
+        lamda=0.00045
         p=exp(-lamda*(abs(t1-t2)))
         return p
     
@@ -189,8 +190,8 @@ def anomalydetect(DB_seq,param,mod):
             prediction = getSymbol(char)              
             predicted.append(prediction)
   
-        # predicted_t =[max(t[0],0)* divisor for t in y_t ]
-        predicted_t =[int(round(max(t[0],0))) for t in y_t ]
+        predicted_t =[max(t[0],0)* divisor for t in y_t ]
+        # predicted_t =[int(round(max(t[0],0))) for t in y_t ]
 
     # return [ground_truth,predicted,ground_truth_t,predicted_t]
 
@@ -205,7 +206,9 @@ def anomalydetect(DB_seq,param,mod):
     #start_time2 = time.perf_counter()
     #print("end seq",start_time2-start_time0)
     if  Sim>.8:
-        return [ground_truth,predicted,ground_truth_t,predicted_t,functools.reduce (lambda a, b: a * b ,Sim_t,1)]
+        # return [ground_truth,predicted,ground_truth_t,predicted_t,functools.reduce (lambda a, b: a * b ,Sim_t,1)]
+        return functools.reduce (lambda a, b: a * b ,Sim_t,1)
     else:
-        return [ground_truth,predicted,ground_truth_t,predicted_t,0]
+        # return [ground_truth,predicted,ground_truth_t,predicted_t,0]
+        return 0
 

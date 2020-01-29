@@ -57,25 +57,111 @@ param = loadobj(f_config)
 
 print("======== SEQUENCES =======")
 seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-seq_df.sequence=pd.Series(X_test[:])
+# seq_df.sequence=pd.Series(X_train[:]+X_test[:]+disturbed_sequences[:])
+seq_df.sequence=pd.Series(X_test[:]+disturbed_sequences[:])
 # nbseq=len(seq_df.sequence)
 
-seq_df.label=pd.Series(len(X_test[:])*[1])
+# seq_df.label=pd.Series(len(X_train[:])*[1]+len(X_test[:])*[1]+len(disturbed_sequences[:])*[0])
+seq_df.label=pd.Series(len(X_test[:])*[1]+len(disturbed_sequences[:])*[0])
 
 # %%
 
 # EXPERIMENT FOR NORMAL SEQUENCES
 def LSTMpred(seqs):
     start_time = time.perf_counter()
-    SS=[anomalydetect([seq],param,model) for seq in seqs]
+    # SS=[anomalydetect([seq],param,model) for seq in seqs]
+    scores = []
+    for seq in seqs:
+        r = anomalydetect([seq],param,model)
+        scores.append(r)
+
     end_time=time.perf_counter()
     le=end_time-start_time
-    return SS 
+    return scores 
 
 result_normal=LSTMpred(list(seq_df.sequence))
 # print(result)
 # save_text_file(result_normal, fold_current_input_data+"/result.txt")
-save_text_file(result_normal, fold_input_data+"/result.txt")
+save_text_file(result_normal, fold_output_data+"/result.txt")
+
+# %%
+def decision(l,th=0.9):
+    return [int(i>=th) for i in l]
+
+def learn_threshold(predict,label):
+    ss=[i for i in np.arange(1, .025, -0.025)]
+    #ss=[1,0.95,.9,.85,.8,.75,.7,.65,.6,.55,.5,.45,.4,.35,.3,.25,.2]
+    fl=[]
+    f=0
+    threshold=0
+    for s in ss:
+        y_pred=decision(predict,s)
+        f1=metrics.f1_score(label, y_pred, average='macro')
+        fl.append(f1)
+        if(f<f1):
+            f=f1
+            threshold=s
+    return ss,fl,f,threshold
+
+import numpy as np
+import matplotlib.pyplot as plt
+def plot_threshold(ss,fl,f,threshold):
+    plt.plot(ss, fl, label='Threshold') #blue
+    plt.plot([threshold], [f],'rx',markersize=6) #red
+    plt.xlabel("Threshold")
+    plt.ylabel("F1-score")
+    # plt.gca().invert_xaxis()
+    plt.legend()
+    plt.show() 
+
+def plot_ROC(test_labels, test_predictions):
+    fpr, tpr, thresholds = metrics.roc_curve(
+        test_labels, test_predictions, pos_label=1)
+    auc = "%.2f" % metrics.auc(fpr, tpr)
+    title = 'ROC Curve, AUC = '+str(auc)
+    with plt.style.context(('ggplot')):
+        fig, ax = plt.subplots()
+        ax.plot(fpr, tpr, "#000099", label='ROC curve')
+        ax.plot([0, 1], [0, 1], 'k--', label='Baseline')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.legend(loc='lower right')
+        plt.title(title)
+    return fig
+
+def savescore(filename,p,r,f):
+    with open(filename, 'a+') as csvfile:
+        spamwriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        #spamwriter.writerow(["CaseID", "nb ch","nbseq","per", "accuracy", "recall", "f1 score", "execution time","memory usage"])
+        spamwriter.writerow(['*',p,r,f])
+
+# %%
+j=0
+for s in list(seq_df.sequence)[:]:
+    SS = LSTMpred([s])
+    # print(SS)
+    ss,f1,f,threshold=learn_threshold(SS,[seq_df.label[j]])
+    y_pred=decision(SS,threshold)
+    print(j,seq_df.label[j],y_pred,SS,threshold)
+
+    #assert(len(seq_df)==len(y_pred))
+    # Display the confusion matrix
+    # print(metrics.confusion_matrix([seq_df.label[j]], y_pred))
+    # Calculate the classification rate of this classifier
+    #p=metrics.accuracy_score(seq_df.label[j:i], y_pred)
+    #r=metrics.recall_score(seq_df.label[j:i], y_pred, average='macro')
+    #f1=metrics.f1_score(seq_df.label[j:i], y_pred, average='macro')
+    p1,r1,f,_=metrics.precision_recall_fscore_support([seq_df.label[j]], y_pred, average='macro')
+    # print(f1,r,p)
+    savescore(fold_output_data+"/LSTM_results.csv",p1,r1,f)
+    j +=1
+
+# %%
+ss,fl,f,threshold=learn_threshold(result_normal,seq_df.label)
+print(threshold,f)
+plot_threshold(ss,fl,f,threshold)
 
 # %%
 
@@ -98,9 +184,9 @@ y_t_truth = []
 values = []
 
 for results in result_normal:
-    y_ev_test.extend([value[0] for value in results[0]])
+    y_ev_test.extend([value for value in results[0]])
     y_ev_truth.extend(results[1])
-    y_t_test.extend([value[0] for value in results[2]])
+    y_t_test.extend([value for value in results[2]])
     y_t_truth.extend(results[3])
 
 # y_ev_test = MultiLabelBinarizer().fit_transform(y_ev_test)
@@ -132,8 +218,8 @@ matrix
 # %%
 # ########################################
 
-y_t_test = np.floor(np.array(y_t_test)/60)
-y_t_truth = np.floor(np.array(y_t_truth)/60)
+y_t_test = np.floor(np.array(y_t_test))
+y_t_truth = np.floor(np.array(y_t_truth))
 
 # print(y_t_test)
 # print(y_t_truth)
@@ -142,13 +228,13 @@ y_t_truth = np.floor(np.array(y_t_truth)/60)
 accuracy = accuracy_score(y_t_test, y_t_truth)
 print('Accuracy: %f' % accuracy)
 # precision tp / (tp + fp)
-precision = precision_score(y_t_test, y_t_truth, average='weighted')
+precision = precision_score(y_t_test, y_t_truth, average='micro')
 print('Precision: %f' % precision)
 # recall: tp / (tp + fn)
-recall = recall_score(y_t_test, y_t_truth, average='weighted')
+recall = recall_score(y_t_test, y_t_truth, average='micro')
 print('Recall: %f' % recall)
 # f1: 2 tp / (2 tp + fp + fn)
-f1 = f1_score(y_t_test, y_t_truth, average='weighted')
+f1 = f1_score(y_t_test, y_t_truth, average='micro')
 print('F1 score: %f' % f1)
  
 # kappa

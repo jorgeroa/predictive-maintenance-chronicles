@@ -16,29 +16,30 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 11   # The index of the experiment (generator) to be performed
+iexp = 2   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
+fold_seq = "/seq{0}".format(iseq)
 
 # #### Binary files #### 
 f_generator_bin = fold_gen+"/generator.pick"
 f_chronicles_bin = fold_gen+"/chronicles.pick"
 f_disturbed_chronicles_bin = fold_gen+"/disturbed_chronicles.pick"
 
-f_seq_normal_bin = fold_gen+"/sequences/seq{0}_normal.pick".format(iseq)
-f_seq_disturbed_bin = fold_gen+"/sequences/seq{0}_disturbed.pick".format(iseq)
+f_seq_normal_bin = fold_gen+fold_seq+"/normal.pick"
+f_seq_disturbed_bin = fold_gen+fold_seq+"/disturbed.pick"
 
 # ####  Text files #### 
-f_seq_normal_txt = fold_gen+"/sequences/seq{0}_normal.txt".format(iseq)
-f_seq_disturbed_txt = fold_gen+"/sequences/seq{0}_disturbed.txt".format(iseq)
-f_seq_normal_time_txt = fold_gen+"/sequences/seq{0}_normal_time.txt".format(iseq)
-f_seq_disturbed_time_txt = fold_gen+"/sequences/seq{0}_disturbed_time.txt".format(iseq)
+f_seq_normal_txt = fold_gen+fold_seq+"/normal.txt"
+f_seq_disturbed_txt = fold_gen+fold_seq+"/disturbed.txt"
+f_seq_normal_time_txt = fold_gen+fold_seq+"/normal_time.txt"
+f_seq_disturbed_time_txt = fold_gen+fold_seq+"/disturbed_time.txt"
 
 # #### CSV files #### 
-f_seq_normal_csv = fold_gen+"/sequences/seq{0}_normal.csv".format(iseq)
+f_seq_normal_csv = fold_gen+fold_seq+"/normal.csv"
 
-# #### JSON files #### 
-f_config_generation = fold_gen + "/config_generator.json"
+# #### JSON file for configuration of the generation #### 
+f_config_generation = fold_gen+fold_seq+"/config_generator.json"
 
 # ############# PARAMETERS FOR SAVING/LOADING MODELS #################
 # Current neural network model, parameters, history, and summary used for executing PdM
@@ -50,13 +51,20 @@ f_current_history = fold_current_model + "/history.pick"
 
 # Parameters for generating experiments of different neural network models
 imodel = 1
-fold_model = "pdm/experiments/model{0}".format(imodel)
-fold_model_summary = "pdm/experiments/model{0}/summary".format(imodel)
-fold_input_data = "pdm/experiments/model{0}/data/input".format(imodel)
-fold_output_data = "pdm/experiments/model{0}/data/input".format(imodel)
-f_model = fold_model + "/model.h5"
-f_config = fold_model + "/config.pick"
-f_history = fold_model + "/history.pick"
+# fold_model = "pdm/experiments/model{0}".format(imodel)
+# fold_model_summary = "pdm/experiments/model{0}/summary".format(imodel)
+# fold_input_data = "pdm/experiments/model{0}/data/input".format(imodel)
+# fold_output_data = "pdm/experiments/model{0}/data/input".format(imodel)
+# f_model = fold_model + "/model.h5"
+# f_config = fold_model + "/config.pick"
+# f_history = fold_model + "/history.pick"
+fold_model = fold_gen+fold_seq+"/model{0}".format(imodel)
+fold_model_summary = fold_gen+fold_seq+"/model{0}/summary".format(imodel)
+fold_input_data = fold_gen+fold_seq+"/model{0}/input".format(imodel)
+fold_output_data = fold_gen+fold_seq+"/model{0}/output".format(imodel)
+f_model = fold_gen+fold_seq+"/model{0}/model.h5".format(imodel)
+f_config = fold_gen+fold_seq+"/model{0}/config.pick".format(imodel)
+f_history = fold_gen+fold_seq+"/model{0}/history.pick".format(imodel)
 
 
 def filterseq(DBseq):

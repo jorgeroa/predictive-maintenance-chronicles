@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 """
 Module containing abstract classes for random structured sequence generator.
 
@@ -215,6 +218,17 @@ class sequence:
         #return self.write_pureseq()
 
 
+    def SedToList(self):
+        L=[]
+
+        if len(self.seq)==0:
+            return L
+        L=[0]*(max(self.seq[1:],key=lambda item:item[0])[0]+1)
+        for c in self.seq[1:]:
+            L[c[0]]=c[1]
+        
+        return L
+
 class sequence_generator:
     """Sequence generator
     
@@ -279,8 +293,12 @@ class db_generator:
         for p in self.patterns:
             s += str(p)+"\n"
         return s
+		
+    def all_patterns(self):
+
+        return [p for p in self.patterns]
     
-    def generate(self, nb=None, l=None, npat=None, th=None):
+    def generate(self, nb=None, l=None, npat=None, th=None,patterns=None,pert=-1):
         """Generation of the sequence database
         
         :param nb: number of sequences
@@ -306,7 +324,10 @@ class db_generator:
         self.stats["nbex"]=self.nbex
             
         #generate self.nbpat random patterns using the generator
-        self.patterns=self.generate_patterns()
+        if(patterns==None):
+            self.patterns=self.generate_patterns()
+        else:
+            self.patterns=patterns
         self.stats["nbpat"] = len(self.patterns)
         
         nbM=-1
@@ -343,6 +364,7 @@ class db_generator:
         
         #generate sequences
         for i in range(self.nbex):
-            self.db[i].self_generate(self.item_generator)
+            self.db[i].self_generate(self.item_generator,pert)
         
         return self.db
+
