@@ -16,7 +16,7 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 2   # The index of the experiment (generator) to be performed
+iexp = 4   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
 fold_seq = "/seq{0}".format(iseq)
@@ -24,15 +24,19 @@ fold_seq = "/seq{0}".format(iseq)
 # #### Binary files #### 
 f_generator_bin = fold_gen+"/generator.pick"
 f_chronicles_bin = fold_gen+"/chronicles.pick"
+f_noisy_chronicles_bin = fold_gen+"/noisy_chronicles.pick"
 f_disturbed_chronicles_bin = fold_gen+"/disturbed_chronicles.pick"
 
 f_seq_normal_bin = fold_gen+fold_seq+"/normal.pick"
+f_seq_noisy_bin = fold_gen+fold_seq+"/noisy.pick"
 f_seq_disturbed_bin = fold_gen+fold_seq+"/disturbed.pick"
 
 # ####  Text files #### 
 f_seq_normal_txt = fold_gen+fold_seq+"/normal.txt"
+f_seq_noisy_txt = fold_gen+fold_seq+"/noisy.txt"
 f_seq_disturbed_txt = fold_gen+fold_seq+"/disturbed.txt"
 f_seq_normal_time_txt = fold_gen+fold_seq+"/normal_time.txt"
+f_seq_noisy_time_txt = fold_gen+fold_seq+"/noisy_time.txt"
 f_seq_disturbed_time_txt = fold_gen+fold_seq+"/disturbed_time.txt"
 
 # #### CSV files #### 

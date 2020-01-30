@@ -10,6 +10,7 @@ from pdm.pdm_monitoring import *
 from keras.models import load_model
 
 from matplotlib import pyplot as plt
+import numpy as np
 
 
 # %%
@@ -18,6 +19,7 @@ from matplotlib import pyplot as plt
 # sequences = loadobj(f_current_seq_normal_bin)
 # disturbed_sequences = loadobj(f_current_seq_disturbed_bin)
 sequences = loadobj(f_seq_normal_bin)
+noisy_sequences = loadobj(f_seq_noisy_bin)
 disturbed_sequences = loadobj(f_seq_disturbed_bin)
 
 # %%
@@ -29,6 +31,8 @@ X_train, X_test = X[0:train_size], X[train_size:len(X)]
 print('Observations: %d' % (len(X)))
 print('Training Observations: %d' % (len(X_train)))
 print('Testing Observations: %d' % (len(X_test)))
+print('Noisy Observations: %d' % (len(noisy_sequences)))
+print('Disturbed Observations: %d' % (len(disturbed_sequences)))
 
 
 # %%
@@ -57,12 +61,12 @@ param = loadobj(f_config)
 
 print("======== SEQUENCES =======")
 seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-# seq_df.sequence=pd.Series(X_train[:]+X_test[:]+disturbed_sequences[:])
-seq_df.sequence=pd.Series(X_test[:]+disturbed_sequences[:])
+seq_df.sequence=pd.Series(X_train[:]+X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
+# seq_df.sequence=pd.Series(X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
 # nbseq=len(seq_df.sequence)
 
-# seq_df.label=pd.Series(len(X_train[:])*[1]+len(X_test[:])*[1]+len(disturbed_sequences[:])*[0])
-seq_df.label=pd.Series(len(X_test[:])*[1]+len(disturbed_sequences[:])*[0])
+seq_df.label=pd.Series(len(X_train[:])*[1]+len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
+# seq_df.label=pd.Series(len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
 
 # %%
 
@@ -90,7 +94,6 @@ def decision(l,th=0.9):
 
 def learn_threshold(predict,label):
     ss=[i for i in np.arange(1, .025, -0.025)]
-    #ss=[1,0.95,.9,.85,.8,.75,.7,.65,.6,.55,.5,.45,.4,.35,.3,.25,.2]
     fl=[]
     f=0
     threshold=0
@@ -103,14 +106,13 @@ def learn_threshold(predict,label):
             threshold=s
     return ss,fl,f,threshold
 
-import numpy as np
-import matplotlib.pyplot as plt
 def plot_threshold(ss,fl,f,threshold):
-    plt.plot(ss, fl, label='Threshold') #blue
+    plt.plot(ss, fl, label='F1-score') #blue
+    # plt.plot(ss, fl) #blue
     plt.plot([threshold], [f],'rx',markersize=6) #red
     plt.xlabel("Threshold")
     plt.ylabel("F1-score")
-    # plt.gca().invert_xaxis()
+    plt.gca().invert_xaxis()
     plt.legend()
     plt.show() 
 
@@ -137,31 +139,14 @@ def savescore(filename,p,r,f):
         #spamwriter.writerow(["CaseID", "nb ch","nbseq","per", "accuracy", "recall", "f1 score", "execution time","memory usage"])
         spamwriter.writerow(['*',p,r,f])
 
-# %%
-j=0
-for s in list(seq_df.sequence)[:]:
-    SS = LSTMpred([s])
-    # print(SS)
-    ss,f1,f,threshold=learn_threshold(SS,[seq_df.label[j]])
-    y_pred=decision(SS,threshold)
-    print(j,seq_df.label[j],y_pred,SS,threshold)
-
-    #assert(len(seq_df)==len(y_pred))
-    # Display the confusion matrix
-    # print(metrics.confusion_matrix([seq_df.label[j]], y_pred))
-    # Calculate the classification rate of this classifier
-    #p=metrics.accuracy_score(seq_df.label[j:i], y_pred)
-    #r=metrics.recall_score(seq_df.label[j:i], y_pred, average='macro')
-    #f1=metrics.f1_score(seq_df.label[j:i], y_pred, average='macro')
-    p1,r1,f,_=metrics.precision_recall_fscore_support([seq_df.label[j]], y_pred, average='macro')
-    # print(f1,r,p)
-    savescore(fold_output_data+"/LSTM_results.csv",p1,r1,f)
-    j +=1
 
 # %%
-ss,fl,f,threshold=learn_threshold(result_normal,seq_df.label)
+labels = list(seq_df.label)
+ss,fl,f,threshold=learn_threshold(result_normal,labels)
 print(threshold,f)
 plot_threshold(ss,fl,f,threshold)
+
+plot_ROC(seq_df.label,result_normal)
 
 # %%
 
@@ -177,19 +162,9 @@ from sklearn.metrics import confusion_matrix
 
 from sklearn.preprocessing import MultiLabelBinarizer
 
-y_ev_test = []
-y_ev_truth = []
-y_t_test = []
-y_t_truth = []
-values = []
-
-for results in result_normal:
-    y_ev_test.extend([value for value in results[0]])
-    y_ev_truth.extend(results[1])
-    y_t_test.extend([value for value in results[2]])
-    y_t_truth.extend(results[3])
-
-# y_ev_test = MultiLabelBinarizer().fit_transform(y_ev_test)
+# y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
+y_ev_test = decision(result_normal,threshold)
+y_ev_truth = seq_df.label
 
 # accuracy: (tp + tn) / (p + n)
 accuracy = accuracy_score(y_ev_test, y_ev_truth)
@@ -207,46 +182,14 @@ print('F1 score: %f' % f1)
 # kappa
 kappa = cohen_kappa_score(y_ev_test, y_ev_truth)
 print('Cohens kappa: %f' % kappa)
-# # ROC AUC
-# auc = roc_auc_score(y_ev_test, yhat_probs)
-# print('ROC AUC: %f' % auc)
+# ROC AUC
+auc = roc_auc_score(y_ev_test, y_ev_truth)
+print('ROC AUC: %f' % auc)
 
 # confusion matrix
 matrix = confusion_matrix(y_ev_test, y_ev_truth)
 matrix
 
-# %%
-# ########################################
-
-y_t_test = np.floor(np.array(y_t_test))
-y_t_truth = np.floor(np.array(y_t_truth))
-
-# print(y_t_test)
-# print(y_t_truth)
-
-# accuracy: (tp + tn) / (p + n)
-accuracy = accuracy_score(y_t_test, y_t_truth)
-print('Accuracy: %f' % accuracy)
-# precision tp / (tp + fp)
-precision = precision_score(y_t_test, y_t_truth, average='micro')
-print('Precision: %f' % precision)
-# recall: tp / (tp + fn)
-recall = recall_score(y_t_test, y_t_truth, average='micro')
-print('Recall: %f' % recall)
-# f1: 2 tp / (2 tp + fp + fn)
-f1 = f1_score(y_t_test, y_t_truth, average='micro')
-print('F1 score: %f' % f1)
- 
-# kappa
-kappa = cohen_kappa_score(y_t_test, y_t_truth)
-print('Cohens kappa: %f' % kappa)
-# # ROC AUC
-# auc = roc_auc_score(y_t_test, yhat_probs)
-# print('ROC AUC: %f' % auc)
-
-# confusion matrix
-matrix = confusion_matrix(y_t_test, y_t_truth)
-matrix
 # %%
 
 # If the model was just trained jump to the next cell. There is no need to reload the history from a file.
