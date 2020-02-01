@@ -1,0 +1,13 @@
+{
+"id":1,
+"nEvents": 85,
+"eventsPerPattern": 40,
+"constraintDensity": 0.5,
+"minStart": 0,
+"minDuration": 1,
+"maxDuration": 100,
+"nSequences": 200,
+"sequencesMeanLenght": 40,
+"nPatterns": 40,
+"patternCoverage": 1
+}

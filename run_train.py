@@ -12,6 +12,12 @@ from keras.models import load_model
 from matplotlib import pyplot as plt
 import numpy as np
 
+print("Experiment:",iexp)
+print("Input Sequence:",iseq)
+print("Model:",imodel)
+print("Folder experiments:",fold_gen)
+print("Folder sequences:",fold_seq)
+
 
 # %%
 
@@ -28,7 +34,7 @@ X = sequences[:]    # Copy sequences to X
 train_size = int(len(X) * 0.7)  # 70% for training
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 
-print('Observations: %d' % (len(X)))
+print('Observations: %d' % (len(X_train)+len(X_test)+len(noisy_sequences)+len(disturbed_sequences)))
 print('Training Observations: %d' % (len(X_train)))
 print('Testing Observations: %d' % (len(X_test)))
 print('Noisy Observations: %d' % (len(noisy_sequences)))
@@ -61,12 +67,12 @@ param = loadobj(f_config)
 
 print("======== SEQUENCES =======")
 seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-seq_df.sequence=pd.Series(X_train[:]+X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
-# seq_df.sequence=pd.Series(X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
+# seq_df.sequence=pd.Series(X_train[:]+X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
+seq_df.sequence=pd.Series(X_test[:]+noisy_sequences[:]+disturbed_sequences[:])
 # nbseq=len(seq_df.sequence)
 
-seq_df.label=pd.Series(len(X_train[:])*[1]+len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
-# seq_df.label=pd.Series(len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
+# seq_df.label=pd.Series(len(X_train[:])*[1]+len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
+seq_df.label=pd.Series(len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(disturbed_sequences[:])*[0])
 
 # %%
 
@@ -158,7 +164,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report,confusion_matrix
 
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -188,7 +194,99 @@ print('ROC AUC: %f' % auc)
 
 # confusion matrix
 matrix = confusion_matrix(y_ev_test, y_ev_truth)
-matrix
+# print(matrix)
+# tn, fp, fn, tp = confusion_matrix(y_ev_test, y_ev_truth).ravel()
+# print("tn:"+str(tn)+", fp:"+str(fp)+", fn:"+str(fn)+", tp:"+str(tp))
+# print(tn, fp, fn, tp)
+target_names = ['Anomaly', 'No anomaly']
+print(classification_report(y_ev_test, y_ev_truth, target_names=target_names))
+
+# %%
+
+def plot_confusion_matrix(cm,
+                          target_names,
+                          title='Confusion matrix',
+                          cmap=None,
+                          normalize=True):
+    """
+    given a sklearn confusion matrix (cm), make a nice plot
+
+    Arguments
+    ---------
+    cm:           confusion matrix from sklearn.metrics.confusion_matrix
+
+    target_names: given classification classes such as [0, 1, 2]
+                  the class names, for example: ['high', 'medium', 'low']
+
+    title:        the text to display at the top of the matrix
+
+    cmap:         the gradient of the values displayed from matplotlib.pyplot.cm
+                  see http://matplotlib.org/examples/color/colormaps_reference.html
+                  plt.get_cmap('jet') or plt.cm.Blues
+
+    normalize:    If False, plot the raw numbers
+                  If True, plot the proportions
+
+    Usage
+    -----
+    plot_confusion_matrix(cm           = cm,                  # confusion matrix created by
+                                                              # sklearn.metrics.confusion_matrix
+                          normalize    = True,                # show proportions
+                          target_names = y_labels_vals,       # list of names of the classes
+                          title        = best_estimator_name) # title of graph
+
+    Citiation
+    ---------
+    http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import itertools
+
+    accuracy = np.trace(cm) / float(np.sum(cm))
+    misclass = 1 - accuracy
+
+    if cmap is None:
+        cmap = plt.get_cmap('Blues')
+
+    plt.figure(figsize=(8, 6))
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+
+    if target_names is not None:
+        tick_marks = np.arange(len(target_names))
+        plt.xticks(tick_marks, target_names, rotation=45)
+        plt.yticks(tick_marks, target_names)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+
+    thresh = cm.max() / 1.5 if normalize else cm.max() / 2
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        if normalize:
+            plt.text(j, i, "{:0.4f}".format(cm[i, j]),
+                     horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
+        else:
+            plt.text(j, i, "{:,}".format(cm[i, j]),
+                     horizontalalignment="center",
+                     color="white" if cm[i, j] > thresh else "black")
+
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
+    plt.show()
+
+
+plot_confusion_matrix(cm = np.array(matrix), 
+                      normalize    = False,
+                      target_names = target_names,
+                      title        = "Confusion Matrix")
+
 
 # %%
 

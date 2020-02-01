@@ -7,6 +7,11 @@ from pdm_data_generation.pdmdb_generator import *
 
 import pandas as pd
 
+print("Experiment:",iexp)
+print("Sequence:",iseq)
+print("Folder experiments:",fold_gen)
+print("Folder sequences:",fold_seq)
+
 # %%
 # ############ LOAD PARAMETERS FOR DATA GENERATION #####################
 # ######################################################################
@@ -34,7 +39,7 @@ n_patterns = config_data["nPatterns"]   # Number of patterns to generate
 pattern_coverage = config_data["patternCoverage"]  # Percentaje of sequences covering each pattern
 # #########################################
 
-
+config_data
 # %%
 # ############ Generate Data #####################
 # ################################################
@@ -89,6 +94,8 @@ disturbed_chro_sequences = generator.generate(nb=n_sequences,
 # Stores all the sequences taken from each chronicle sequence of the variable disturbed_chro_sequences
 disturbed_sequences=[s.seq for s in disturbed_chro_sequences]
 
+print("Chronicles and sequences were sucessfully generated!!")
+
 # %%
 
 # Removes from sequences and disturbed_sequences all events equal to -1 and empty sequences
@@ -96,32 +103,8 @@ sequences=filterseq(sequences)
 noisy_sequences=filterseq(noisy_sequences)
 disturbed_sequences=filterseq(disturbed_sequences)
 
-# %%
-
-# The following code was defined temporally just to create a noisy dataset
-
-# generator = loadobj(f_generator_bin)
-# noisy_chro_sequences = generator.generate(nb=n_sequences, 
-#                                 l=sequences_mean_lenght, 
-#                                 npat=n_patterns, 
-#                                 th=pattern_coverage,
-#                                 # patterns=disturbed_chronicles,
-#                                 patterns=generator.all_patterns(),
-#                                 pert=0)
-
-# # Stores all the sequences taken from each chronicle sequence of the variable noisy_chro_sequences
-# noisy_sequences=[s.seq for s in noisy_chro_sequences]
-
-# noisy_sequences=filterseq(noisy_sequences)
-
-# saveobj(f_noisy_chronicles_bin,noisy_chro_sequences)
-# saveobj(f_seq_noisy_bin,noisy_sequences)
-# serialization2(noisy_sequences,f_seq_noisy_txt)
-# serialization(noisy_sequences, f_seq_noisy_time_txt)
-
-
 # %% [markdown]
-# ############ Saves Data #####################
+# ############ Saving Data #####################
 # #############################################
 
 #  %%
@@ -166,10 +149,12 @@ disturbed_sequences = loadobj(f_seq_disturbed_bin)
 # %%
 
 to_csv(sequences, f_seq_normal_csv)
+to_csv(noisy_sequences, f_seq_noisy_csv)
+to_csv(disturbed_sequences, f_seq_disturbed_csv)
 
 # %% [markdown]
 
-# ######### ANALIZE GENERATED DATA ##########
+######### ANALIZE GENERATED DATA ##########
 
 # %%
 # TODO: HERE IT'S NECESSQRY TO SHOW A COMPARISSON OF DATA GENERATED TO PROVE THEY ARE DIFFERENT WITH EACH OTHER
@@ -186,24 +171,32 @@ from pandas import to_datetime
 import numpy as np
 
 #   Load data from csv
-series = read_csv(f_seq_normal_csv, header=0, index_col=0)
+series_normal = read_csv(f_seq_normal_csv, header=0, index_col=0)
+series_noisy = read_csv(f_seq_noisy_csv, header=0, index_col=0)
+series_disturbed = read_csv(f_seq_disturbed_csv, header=0, index_col=0)
 
 #  %%
 
-series.hist()
+series_normal.hist()
+pyplot.show()
+
+series_noisy.hist()
+pyplot.show()
+
+series_disturbed.hist()
 pyplot.show()
 
 # %%
 
-groups = series.groupby('Event')
-# groups.first()}
-events = DataFrame()
+# groups = series.groupby('Event')
+# # groups.first()}
+# events = DataFrame()
 
-for name, group in groups:
-    events[name] = pd.Series(np.asarray(group['Event'].index))
+# for name, group in groups:
+#     events[name] = pd.Series(np.asarray(group['Event'].index))
 
-events.plot(subplots=True, legend=True)
-pyplot.show()
+# events.plot(subplots=True, legend=True)
+# pyplot.show()
 
 
 # %%
@@ -221,9 +214,33 @@ pyplot.show()
 # pyplot.show()
 #  %%
 
-series = read_csv(f_seq_normal_csv, header=0, index_col=0)
+series_normal = read_csv(f_seq_normal_csv, header=0, index_col=0)
 
-groups = series.groupby('Event')
+groups = series_normal.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Event'].index))
+
+events.boxplot()
+pyplot.show()
+
+series_noisy = read_csv(f_seq_noisy_csv, header=0, index_col=0)
+
+groups = series_noisy.groupby('Event')
+# groups.first()}
+events = DataFrame()
+
+for name, group in groups:
+    events[name] = pd.Series(np.asarray(group['Event'].index))
+
+events.boxplot()
+pyplot.show()
+
+series_disturbed = read_csv(f_seq_disturbed_csv, header=0, index_col=0)
+
+groups = series_disturbed.groupby('Event')
 # groups.first()}
 events = DataFrame()
 
@@ -234,16 +251,16 @@ events.boxplot()
 pyplot.show()
 
 # %%
-groups = series.groupby('Event')
-# groups.first()}
-events = DataFrame()
+# groups = series_normal.groupby('Event')
+# # groups.first()}
+# events = DataFrame()
 
-for name, group in groups:
-    events[name] = pd.Series(np.asarray(group['Event'].index))
+# for name, group in groups:
+#     events[name] = pd.Series(np.asarray(group['Event'].index))
 
-events = events.T
-pyplot.matshow(events, interpolation=None, aspect='auto')
-pyplot.show()
+# events = events.T
+# pyplot.matshow(events, interpolation=None, aspect='auto')
+# pyplot.show()
 
 
 # %%
@@ -263,129 +280,129 @@ pyplot.show()
 
 # %%
 
-from pandas.plotting import lag_plot
+# from pandas.plotting import lag_plot
 
-groups = series.groupby('Event')
-# groups.first()}
-events = DataFrame()
+# groups = series_normal.groupby('Event')
+# # groups.first()}
+# events = DataFrame()
 
-for name, group in groups:
-    events[name] = pd.Series(np.asarray(group['Event'].index))
-    print("Lag plot Time for event {0}".format(name))
-    lag_plot(events[name])
-    pyplot.show()
+# for name, group in groups:
+#     events[name] = pd.Series(np.asarray(group['Event'].index))
+#     print("Lag plot Time for event {0}".format(name))
+#     lag_plot(events[name])
+#     pyplot.show()
 
-# %%
+# # %%
 
-# REVISAR!!!
-from pandas.plotting import lag_plot
-series = read_csv(f_seq_normal_csv, header=0)
-rel_time = [int(i/60) for i in series['Time']]
-
-series["Time"]=pd.Series(rel_time)
-groups = series.groupby('Time')
-# groups.first()}
-events = DataFrame()
-
-for name, group in groups:
-    events[name] = pd.Series(np.asarray(group['Time'].index))
-    print("Lag plot Event for time {0}".format(name))
-    lag_plot(events[name])
-    pyplot.show()
-
-# %%
-
-from pandas.plotting import lag_plot
-
-rel_time = [int(i/60) for i in series['Time']]
-
-groups = series.groupby('Event')
-# groups.first()}
-events = DataFrame()
-
-for name, group in groups:
-    rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
-    events[name] = pd.Series(rel_time)
-    print("Lag plot Event for event {0}".format(name))
-    lag_plot(events[name])
-    pyplot.show()
-
-# %%
-
-from pandas.plotting import autocorrelation_plot
-
-autocorrelation_plot(series)
-pyplot.show()
-
-print("Autocorrelation of Events")
-autocorrelation_plot(series['Event'])
-pyplot.show()
-
+# # REVISAR!!!
+# from pandas.plotting import lag_plot
 # series = read_csv(f_seq_normal_csv, header=0)
-print("Autocorrelation of Time")
-autocorrelation_plot(series['Time'])
-pyplot.show()
+# rel_time = [int(i/60) for i in series['Time']]
 
-# %%
+# series["Time"]=pd.Series(rel_time)
+# groups = series.groupby('Time')
+# # groups.first()}
+# events = DataFrame()
 
-from pandas.plotting import lag_plot
+# for name, group in groups:
+#     events[name] = pd.Series(np.asarray(group['Time'].index))
+#     print("Lag plot Event for time {0}".format(name))
+#     lag_plot(events[name])
+#     pyplot.show()
 
-rel_time = [int(i/60) for i in series['Time']]
+# # %%
 
-groups = series.groupby('Event')
-# groups.first()}
-events = DataFrame()
+# from pandas.plotting import lag_plot
 
-for name, group in groups:
-    rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
-    events[name] = pd.Series(rel_time)
-    print("Lag plot Event for event {0}".format(name))
-    autocorrelation_plot(events[name])
-    pyplot.show()
-# %%
+# rel_time = [int(i/60) for i in series['Time']]
 
-print("======== SEQUENCES =======")
-seq_df=pd.DataFrame({'sequence':[], 'label':[]})
-seq_df.sequence=pd.Series(sequences[:])
-# nbseq=len(seq_df.sequence)
+# groups = series.groupby('Event')
+# # groups.first()}
+# events = DataFrame()
 
-seq_df.label=pd.Series(len(sequences[:])*[0])
-# print(seq_df.shape)
-# print(seq_df.head(10))
+# for name, group in groups:
+#     rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
+#     events[name] = pd.Series(rel_time)
+#     print("Lag plot Event for event {0}".format(name))
+#     lag_plot(events[name])
+#     pyplot.show()
 
-#for e in seq_df.sequence:
-#    print(e)
+# # %%
 
-# %%
+# from pandas.plotting import autocorrelation_plot
 
-dataset = seq_df.copy()
+# autocorrelation_plot(series)
+# pyplot.show()
 
-print("head:")
-train_dataset = dataset.sample(frac=0.8,random_state=0)
-train_dataset.head()
+# print("Autocorrelation of Events")
+# autocorrelation_plot(series['Event'])
+# pyplot.show()
+
+# # series = read_csv(f_seq_normal_csv, header=0)
+# print("Autocorrelation of Time")
+# autocorrelation_plot(series['Time'])
+# pyplot.show()
+
+# # %%
+
+# from pandas.plotting import lag_plot
+
+# rel_time = [int(i/60) for i in series['Time']]
+
+# groups = series.groupby('Event')
+# # groups.first()}
+# events = DataFrame()
+
+# for name, group in groups:
+#     rel_time = [int(i/60) for i in np.asarray(group['Event'].index)]
+#     events[name] = pd.Series(rel_time)
+#     print("Lag plot Event for event {0}".format(name))
+#     autocorrelation_plot(events[name])
+#     pyplot.show()
+# # %%
+
+# print("======== SEQUENCES =======")
+# seq_df=pd.DataFrame({'sequence':[], 'label':[]})
+# seq_df.sequence=pd.Series(sequences[:])
+# # nbseq=len(seq_df.sequence)
+
+# seq_df.label=pd.Series(len(sequences[:])*[0])
+# # print(seq_df.shape)
+# # print(seq_df.head(10))
+
+# #for e in seq_df.sequence:
+# #    print(e)
+
+# # %%
+
+# dataset = seq_df.copy()
+
+# print("head:")
+# train_dataset = dataset.sample(frac=0.8,random_state=0)
+# train_dataset.head()
+# # train_dataset.index
 # train_dataset.index
-train_dataset.index
-# train_dataset.describe()
-# train_dataset['sequence']
-# train_dataset.iloc[3]
+# # train_dataset.describe()
+# # train_dataset['sequence']
+# # train_dataset.iloc[3]
 
-# train_stats = train_dataset.describe()
-# train_stats.pop("sequence")
-# train_stats = train_stats.transpose()
-# train_stats
-
-
-# %%
-
-import seaborn as sns
-sns.pairplot(train_dataset[["sequence", "label"]], diag_kind="kde")
+# # train_stats = train_dataset.describe()
+# # train_stats.pop("sequence")
+# # train_stats = train_stats.transpose()
+# # train_stats
 
 
-# %%
+# # %%
 
-print("tail:")
-test_dataset = dataset.drop(train_dataset.index)
-test_dataset.tail()
+# import seaborn as sns
+# sns.pairplot(train_dataset[["sequence", "label"]], diag_kind="kde")
+
+
+# # %%
+
+# print("tail:")
+# test_dataset = dataset.drop(train_dataset.index)
+# test_dataset.tail()
 
 
 

@@ -16,7 +16,7 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 4   # The index of the experiment (generator) to be performed
+iexp = 6   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
 fold_seq = "/seq{0}".format(iseq)
@@ -41,6 +41,8 @@ f_seq_disturbed_time_txt = fold_gen+fold_seq+"/disturbed_time.txt"
 
 # #### CSV files #### 
 f_seq_normal_csv = fold_gen+fold_seq+"/normal.csv"
+f_seq_noisy_csv = fold_gen+fold_seq+"/noisy.csv"
+f_seq_disturbed_csv = fold_gen+fold_seq+"/disturbed.csv"
 
 # #### JSON file for configuration of the generation #### 
 f_config_generation = fold_gen+fold_seq+"/config_generator.json"
