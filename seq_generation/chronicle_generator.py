@@ -454,9 +454,9 @@ class chro_sequence(sequence):
             interval[0]=occurrence[i-1]+lc[0]
             last_e=i-1
             interval[1]=occurrence[i-1]+lc[1]
-            #pert=1 ==>pert fonctionnement abnormal
-            #pert=0 ==>bruit
-            #pert=-1 ==>pas pert 
+            #pert=1 ==>disturb
+            #pert=0 ==>noise
+            #pert=-1 ==>no disturb 
             #pert=-2 LSTM train
             if(pert>=0 and last_e!=-1 and i>2):
 
