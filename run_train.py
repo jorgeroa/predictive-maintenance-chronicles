@@ -149,7 +149,7 @@ def savescore(filename,p,r,f):
 # %%
 labels = list(seq_df.label)
 ss,fl,f,threshold=learn_threshold(result_normal,labels)
-print(threshold,f)
+print("Threshold: ",threshold, " F1-score: ", f)
 plot_threshold(ss,fl,f,threshold)
 
 plot_ROC(seq_df.label,result_normal)

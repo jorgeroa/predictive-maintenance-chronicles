@@ -188,7 +188,7 @@ pyplot.show()
 
 # %%
 
-# groups = series.groupby('Event')
+# groups = series_normal.groupby('Event')
 # # groups.first()}
 # events = DataFrame()
 
