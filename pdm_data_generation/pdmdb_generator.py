@@ -27,10 +27,6 @@ class disturbed_chro_sequence(chro_sequence):
     """
     gen_int_timestamped=True #if True, timestamped will be integers
 
-    # ################################################
-    # IT IS NECESSARY TO ADD HERE THE CODE FOR GENERATING THE DISTURBED DATA. SEE THE CODE FROM SUPERCLASS chro_sequence.
-    # ################################################
-    
     def __init__(self, rl =20, d=1000):
         super().__init__(rl,d)
 
@@ -57,178 +53,14 @@ class disturbed_chro_sequence(chro_sequence):
             t = np.random.uniform(m+1,m+s)
         return t
     
-    # def self_generate(self, item_gen,pert=-1):
-    #     """ Generate the sequence of items from the patterns it contains and according to the required length
-    
-    #     Timestamped are generated according to a random uniform law within the duration of the sequence
-    #     The function enable to generate negative pattern
-    
-    #     :param item_gen: random item generator to mix the pattern occurrences with random items.
-    #     """
-    
-    #     # no patterns inside: fully random sequences
-    #     if len(self.patterns)==0:
-    #         l=int(np.random.normal(self.requiredlen, float(self.requiredlen)/float(10.0)))
-    #         for i in range(l):
-    #             #random item (according to an item generator)
-    #             #item = item_gen.generate()
-    #             item=-1
-    #             #random timestamp
-    #             timestamp = np.random.uniform(self.duration)
-    #             self.seq.append( (timestamp,item) )
-    #             if chro_sequence.gen_int_timestamped:
-    #                 self.seq = [ (int(c[0]),c[1]) for c in self.seq ]
-    #             self.seq.sort(key=lambda tup: tup[0])
-    #         return 
-            
-    #     negative_period={}
-        
-    #     totcreated=0
-        
-    #     #for p in self.patterns:
-    #     i=randint(0, len(self.patterns)-1)
-    #     p=self.patterns[i]
-    #     occurrence=[] #timestamped of the occurrence
-    #     t=int(np.random.uniform(0,self.duration/2)) #chronicle start at the beginning of the sequence
-    #     occurrence.append(t)
-    #     self.seq.append( (t,p[0]) )
-    #     npert=0
-
-    #     for i in range(1,len(p)):
-    #         # construct a interval in which i-th event could occurs
-    #         # interval=[0,100000]
-    #         interval=[0,self.duration]
-    #         last_e=-1
-
-    #         lc = p[ (i-1,i) ]
-    #         interval[0]=occurrence[i-1]+lc[0]
-    #         last_e=i-1
-    #         interval[1]=occurrence[i-1]+lc[1]
-
-    #         t = np.random.uniform(interval[0],interval[1])
-    #         self.seq.append( (int(t),p[i]) )
-    #         occurrence.append(int(t)) #timestamp of the i-th item in the chronicle occurrence
-            
-    #     if not p.negative_position is None:
-    #         if p.negative_position == (len(occurrence)-1):
-    #             negative_period[p]=(occurrence[p.negative_position],float("inf"))
-    #         else:
-    #             negative_period[p]=(occurrence[p.negative_position],occurrence[p.negative_position+1])
-            
-    #     totcreated += len(p)
-            
-    #     # l=int(np.random.normal(self.requiredlen, float(self.requiredlen)/float(10.0)))
-    #     # while totcreated<l:
-    #     #     #random item (according to an item generator)
-    #     #     #item = item_gen.generate()
-    #     #     item=-1
-    #     #     #random timestamp
-    #     #     timestamp = np.random.uniform(self.duration)
-    #     #     self.seq.append( (timestamp,item) )
-    #     #     totcreated+=1
-            
-            
-    #     #sort the list according to timestamps
-    #     if chro_sequence.gen_int_timestamped:
-    #         self.seq = [ (int(c[0]),c[1]) for c in self.seq ]
-    #     self.seq.sort(key=lambda tup: tup[0])
-        
-        
-    #     for p in self.patterns:
-    #         if not p.negative_position is None:
-    #             for item in self.seq:
-    #                 if item[0]>negative_period[p][0] and item[0]<negative_period[p][1]:
-    #                     p.add_possible_neg_item(item[1], self.id)
-
-    # def self_generate(self, item_gen):
-    #     """ Generate the sequence of items from the patterns it contains and according to the required length
-    
-    #     Timestamped are generated according to a random uniform law within the duration of the sequence
-    #     The function enable to generate negative pattern
-    
-    #     :param item_gen: random item generator to mix the pattern occurrences with random items.
-    #     """
-    
-    #     # # no patterns inside: fully random sequences
-    #     # if len(self.patterns)==0:
-    #     #     l=int(np.random.normal(self.requiredlen, float(self.requiredlen)/float(10.0)))
-    #     #     for i in range(l):
-    #     #         #random item (according to an item generator)
-    #     #         item = item_gen.generate()
-    #     #         #random timestamp
-    #     #         timestamp = np.random.uniform(self.duration)
-    #     #         self.seq.append( (timestamp,item) )
-    #     #         if chro_sequence.gen_int_timestamped:
-    #     #             self.seq = [ (int(c[0]),c[1]) for c in self.seq ]
-    #     #         self.seq.sort(key=lambda tup: tup[0])
-    #     #     return
-            
-    #     negative_period={}
-        
-    #     totcreated=0
-    #     for p in self.patterns:
-    #         occurrence=[] #timestamped of the occurrence
-    #         t=np.random.uniform(0,self.duration/2) #chronicle start at the beginning of the sequence
-    #         occurrence.append(t)
-    #         self.seq.append( (t,p[0]) )
-            
-    #         for i in range(1,len(p)):
-    #             # construct a interval in which i-th event could occurs
-    #             interval=[0,self.duration]
-    #             for j in range(i):
-    #                 lc = p[ (j,i) ] #chronicle constraint between j and i
-    #                 #interval intersection (constraints conjunction)
-    #                 if interval[0]<occurrence[j]+lc[0]:
-    #                     interval[0]=occurrence[j]+lc[0]
-    #                 if interval[1]>occurrence[j]+lc[1]:
-    #                     interval[1]=occurrence[j]+lc[1]
-                    
-    #             #generate a timestamp in the interval
-    #             if interval[0]>=interval[1]:
-    #                 warnings.warn("*** chronicle is not consistent ***")
-    #                 self.seq=[]
-    #                 return
-                
-    #             t = np.random.uniform(interval[0],interval[1])
-    #             self.seq.append( (t,p[i]) )
-    #             occurrence.append(t) #timestamp of the i-th item in the chronicle occurrence
-                
-    #         # if not p.negative_position is None:
-    #         #     if p.negative_position == (len(occurrence)-1):
-    #         #         negative_period[p]=(occurrence[p.negative_position],float("inf"))
-    #         #     else:
-    #         #         negative_period[p]=(occurrence[p.negative_position],occurrence[p.negative_position+1])
-                
-    #         totcreated += len(p)
-            
-    #     # l=int(np.random.normal(self.requiredlen, float(self.requiredlen)/float(10.0)))
-    #     # while totcreated<l:
-    #     #     #random item (according to an item generator)
-    #     #     item = item_gen.generate()
-    #     #     #random timestamp
-    #     #     timestamp = np.random.uniform(self.duration)
-    #     #     self.seq.append( (timestamp,item) )
-    #     #     totcreated+=1
-            
-            
-    #     #sort the list according to timestamps
-    #     if chro_sequence.gen_int_timestamped:
-    #         self.seq = [ (int(c[0]),c[1]) for c in self.seq ]
-    #     self.seq.sort(key=lambda tup: tup[0])
-        
-        
-    #     # for p in self.patterns:
-    #     #     if not p.negative_position is None:
-    #     #         for item in self.seq:
-    #     #             if item[0]>negative_period[p][0] and item[0]<negative_period[p][1]:
-    #     #                 p.add_possible_neg_item(item[1], self.id)
-
-    def self_generate(self, item_gen,pert=-1):
+    def self_generate(self, item_gen, dist=-1):
         """ Generate the sequence of items from the patterns it contains and according to the required length
     
         Timestamped are generated according to a random uniform law within the duration of the sequence
         The function enable to generate negative pattern
-    
+        pert=1 ==> disturbation
+        pert=0 ==> noise
+        pert=-1 ==> no disturbation 
         :param item_gen: random item generator to mix the pattern occurrences with random items.
         """
     
@@ -258,47 +90,25 @@ class disturbed_chro_sequence(chro_sequence):
         t=int(np.random.uniform(0,self.duration/2)) #chronicle start at the beginning of the sequence
         occurrence.append(t)
         self.seq.append( (t,p[0]) )
-        npert=0
+        ndist=0
 
         for i in range(1,len(p)):
             # construct a interval in which i-th event could occurs
-            interval=[0,100000]
+            # interval=[0,100000]
+            interval=[0,self.duration]
             last_e=-1
-            """
-            for j in range(i):
-                lc = p[ (j,i) ] #chronicle constraint between j and i
-                #interval intersection (constraints conjunction)
-                if interval[0]<occurrence[j]+lc[0]:
-                    interval[0]=occurrence[j]+lc[0]
-                    last_e=j
-                if interval[1]>occurrence[j]+lc[1]:
-                    interval[1]=occurrence[j]+lc[1]
-            if(pert>=0 and len(p)>7):
-                lc = p[ (i-1,i) ]
-                interval[0]=occurrence[i-1]+lc[0]
-                last_e=i-1
-                interval[1]=occurrence[i-1]+lc[1]   
-            #generate a timestamp in the interval
-            if interval[0]>=interval[1]:
-                warnings.warn("*** chronicle is not consistent ***")
-                self.seq=[]
-                return
-            """
             lc = p[ (i-1,i) ]
             interval[0]=occurrence[i-1]+lc[0]
             last_e=i-1
             interval[1]=occurrence[i-1]+lc[1]
-            #pert=1 ==>pert fonctionnement abnormal
-            #pert=0 ==>bruit
-            #pert=-1 ==>pas pert 
-            #pert=-2 LSTM train
-            if(pert>=0 and last_e!=-1 and i>2):
 
-                if(npert==0):
-                    if(pert==1):
+            if(dist>=0 and last_e!=-1 and i>2):
+
+                if(ndist==0):
+                    if(dist==1):
                         inter=[interval[0]-20,interval[1]+20]
                         t=self.disturb(inter,100)
-                    elif(pert==0):
+                    elif(dist==0):
                         d=interval[0] - occurrence[i-1]
                         if(d<0):
                             t=self.disturb(interval,10)
@@ -306,14 +116,14 @@ class disturbed_chro_sequence(chro_sequence):
                             s=min(10,d)
                             t=self.disturb(interval,s)
                     if interval!=[0,self.duration]:
-                        npert +=1
-                elif(np.random.random()> .5 and pert==1 ):
+                        ndist +=1
+                elif(np.random.random()> .5 and dist==1 ):
                     #t=self.disturb(interval,10)
                     inter=[interval[0]-20,interval[1]+20]
                     t=self.disturb(inter,100)
                 else:
                     t = np.random.uniform(max(interval[0],0),interval[1])
-            elif (pert==-2):
+            elif (dist==-2):
                 #t = np.random.uniform(interval[0],interval[1])
                 t =(interval[1]+interval[0])/2
             else:
@@ -394,91 +204,6 @@ class disturbed_chronicle_generator(chronicle_generator):
 
         return chro
         
-    def generate_similar(self, C, proba=[0.1,0.8,0.1]):
-        """function that generates a chronicle similar to C
-        
-        representing the proba of modifications
-            1- removing items (defailt 0.1)
-            2- modyfying constraints (default 0.8)
-            3- adding item (default 0.1)
-        
-        what can change in the generated chronicle:
-            - temporal bounds
-            - multi-set (add or remove items)
-        
-        :param C: is a chronicle
-        :param proba: list of 3 values representing the proba of modifications
-        :return: a chronicle
-        """
-        if not isinstance(C, chronicle):
-            return
-            
-        chro = chronicle()
-        
-        ########## RANDOM MODIFICATION SELECTION  ###############
-        removeitem=False
-        modify_tconst = False
-        additem=False
-        
-        #proba normalisation
-        vec=np.array(proba)
-        proba = vec/np.sum(vec)
-        alea=np.random.rand()
-        i=0
-        while i<3 and alea>proba[i]:
-            alea -= proba[i]
-            i+=1
-        if i==0:
-            removeitem=True
-        elif i==1:
-            modify_tconst = True
-        else:
-            additem=True
-        
-        ################ CHRONICLE MODIFICATIONS #############
-        l=len(C.sequence)
-        if removeitem:
-            idr = np.random.randint( l )
-            for i in range(l):
-                if i==idr:
-                    continue
-                chro.sequence.append( C[i] )
-            #copy constraints (removing idr + decay references)
-            for i in range(idr):
-                for j in range(i+1,idr):
-                    chro.add_constraint(i, j, C[(i,j)] )
-                for j in range(idr+1,l):
-                    chro.add_constraint(i, j-1, C[(i,j)] )
-            for i in range(idr+1,l):
-                for j in range(i+1,l):
-                    chro.add_constraint(i-1, j-1, C[(i,j)] )
-                    
-        if additem: #add a new item to
-            chro.sequence = list(C.sequence)
-            chro.tconst = C.tconst.copy()
-            ni = self.itemGenerator.generate()
-            chro.sequence.append(ni)
-            nl = len(chro.sequence)-1
-            for j in range( nl ):
-                if np.random.uniform(0,1)<self.constraintdensity:
-                    c=self.constraintGenerator.generate()
-                else:
-                    c=(-float("inf"), float("inf"))
-                chro.add_constraint(j, nl, c)
-        
-        if modify_tconst:
-            chro.sequence = list(C.sequence)
-            chro.tconst = dict(C.tconst)
-            j = np.random.randint( 1, l )
-            i = np.random.randint( j )
-            
-            #generate a new random constraint
-            c = self.constraintGenerator.generate()
-            chro.add_constraint(i, j, c )
-        
-        ################ CHRONICLE MINIMISATION #############
-        chro.minimize()
-        return chro
 
 class disturbed_constraint_generator(constraint_generator):
     """Chronicle constraint generator
@@ -524,6 +249,8 @@ class pdmdb_generator(db_generator):
 
         super().__init__(itemgen, seqgen, patgen)
 
+    def all_patterns(self):
+        return [p for p in self.patterns]
 
     # def generate_sequences(self):
     #     self.db=[]
@@ -532,7 +259,7 @@ class pdmdb_generator(db_generator):
     #         self.db.append( self.sequence_generator.generate(self.l,self.maxduration) )
 
 
-    def generate(self, nb=None, l=None, npat=None, th=None, patterns=None, pert=-1):
+    def generate(self, nb=None, l=None, npat=None, th=None, patterns=None, dist=-1):
         """Generation of the sequence database
         
         :param nb: number of sequences
@@ -600,7 +327,7 @@ class pdmdb_generator(db_generator):
         
         #generate sequences
         for i in range(self.nbex):
-            self.db[i].self_generate(self.item_generator,pert)
+            self.db[i].self_generate(self.item_generator,dist)
         
         return self.db
 
