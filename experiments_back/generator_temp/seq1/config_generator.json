@@ -6,7 +6,7 @@
 "minStart": 0,
 "minDuration": 1,
 "maxDuration": 100,
-"nSequences": 200,
+"nSequences": 300,
 "sequencesMeanLenght": 10,
 "nPatterns": 10,
 "patternCoverage": 1
