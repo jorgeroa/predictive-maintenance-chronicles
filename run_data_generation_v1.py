@@ -44,7 +44,7 @@ config_data
 # ############ Generate Data #####################
 # ################################################
 # nbitems: number of events // lp: number of events per pattern
-generator=pdmdb_generator(nbitems=n_events, 
+generator=chrodb_generator(nbitems=n_events, 
                             lp=events_per_pattern, 
                             dc=constraint_density, 
                             minstart=min_start, 
@@ -56,7 +56,7 @@ chro_sequences = generator.generate(nb=n_sequences,
                                 l=sequences_mean_lenght, 
                                 npat=n_patterns, 
                                 th=pattern_coverage,
-                                dist=-1)
+                                pert=-1)
 
 # Stores all the sequences taken from each chronicle sequence of the variable chro_sequences
 sequences=[s.seq for s in chro_sequences]
@@ -64,12 +64,20 @@ sequences=[s.seq for s in chro_sequences]
 # The disturbed chronicles to be used for generating disturbed sequences
 disturbed_chronicles = []
 
+# for c in generator.patterns:
+#     # Probability of: [1:removing items, 2:modifying constraints, 3:adding items]
+#     prob = [0,1,0]  # Set probability of modifying constraints to 1 and 0 for removing/adding
+#     # Generate disturbed a chronicle from chronicle c with probability prob
+#     disturbed_chronicle = generator.pattern_generator.generate_similar(c,prob)
+#     disturbed_chronicles.append(disturbed_chronicle)
+
 noisy_chro_sequences = generator.generate(nb=n_sequences, 
                                 l=sequences_mean_lenght, 
                                 npat=n_patterns, 
                                 th=pattern_coverage,
+                                # patterns=disturbed_chronicles,
                                 patterns=generator.all_patterns(),
-                                dist=0)
+                                pert=0)
 
 # Stores all the sequences taken from each chronicle sequence of the variable noisy_chro_sequences
 noisy_sequences=[s.seq for s in noisy_chro_sequences]
@@ -79,8 +87,9 @@ disturbed_chro_sequences = generator.generate(nb=n_sequences,
                                 l=sequences_mean_lenght, 
                                 npat=n_patterns, 
                                 th=pattern_coverage,
+                                # patterns=disturbed_chronicles,
                                 patterns=generator.all_patterns(),
-                                dist=1)
+                                pert=1) # FIX THIS. This should be called zith the original chronicles (chro_sequences)
 
 # Stores all the sequences taken from each chronicle sequence of the variable disturbed_chro_sequences
 disturbed_sequences=[s.seq for s in disturbed_chro_sequences]
