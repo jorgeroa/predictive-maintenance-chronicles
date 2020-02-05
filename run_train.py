@@ -49,13 +49,10 @@ print("####### Start traning ########")
 h=train(X_train)
 saveobj(f_history,h)
 
-print("####### End tranin+g ########")
+print("####### End tranining ########")
 
 
 # %%
-##load model and parameter
-# saveobj(f_history,h)
-
 # model = load_model(f_current_model)
 # param = loadobj(f_current_config)
 model = load_model(f_model)
