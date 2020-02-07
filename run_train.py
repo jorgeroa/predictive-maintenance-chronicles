@@ -86,10 +86,10 @@ def LSTMpred(seqs):
     le=end_time-start_time
     return scores 
 
-result_normal=LSTMpred(list(seq_df.sequence))
+prediction=LSTMpred(list(seq_df.sequence))
 # print(result)
 # save_text_file(result_normal, fold_current_input_data+"/result.txt")
-save_text_file(result_normal, fold_output_data+"/result.txt")
+save_text_file(prediction, fold_output_data+"/result.txt")
 
 # %%
 def decision(l,th=0.9):
@@ -145,11 +145,12 @@ def savescore(filename,p,r,f):
 
 # %%
 labels = list(seq_df.label)
-ss,fl,f,threshold=learn_threshold(result_normal,labels)
+similarity = [pred['similarity'] for pred in prediction]
+ss,fl,f,threshold=learn_threshold(similarity,labels)
 print("Threshold: ",threshold, " F1-score: ", f)
 plot_threshold(ss,fl,f,threshold)
 
-plot_ROC(seq_df.label,result_normal)
+plot_ROC(seq_df.label,similarity)
 
 # %%
 
@@ -166,7 +167,7 @@ from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.preprocessing import MultiLabelBinarizer
 
 # y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
-y_ev_test = decision(result_normal,threshold)
+y_ev_test = decision(similarity,threshold)
 y_ev_truth = seq_df.label
 
 # accuracy: (tp + tn) / (p + n)

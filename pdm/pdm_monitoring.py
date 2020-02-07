@@ -124,10 +124,13 @@ def anomalydetect(DB_seq,param,mod):
         i=np.where(predictions == np.amax(predictions))[0]
         symbol = target_indices_char[i[0]]
         return symbol
-    
+
     def prob_likelihood(t1,t2):
-        #lamda=0.0000015
-        lamda=0.00045
+        # lamda=0.0000015
+        # lamda=0.0000045
+        # lamda=0.000045
+        # lamda=0.0001
+        lamda=0.001
         p=exp(-lamda*(abs(t1-t2)))
         return p
     
@@ -205,10 +208,20 @@ def anomalydetect(DB_seq,param,mod):
         #print(Sim_t)
     #start_time2 = time.perf_counter()
     #print("end seq",start_time2-start_time0)
+    result={}
+    result['ground_truth_ev'] = ground_truth
+    result['predicted_ev'] = predicted
+    result['sim_ev'] = Sim
+    result['ground_truth_t'] = ground_truth_t
+    result['predicted_t'] = predicted_t
+    result['sim_t'] = Sim_t
     if  Sim>.8:
+
+        result['similarity'] = functools.reduce (lambda a, b: a * b ,Sim_t,1)
         # return [ground_truth,predicted,ground_truth_t,predicted_t,functools.reduce (lambda a, b: a * b ,Sim_t,1)]
-        return functools.reduce (lambda a, b: a * b ,Sim_t,1)
+        return result
     else:
+        result['similarity'] = 0
         # return [ground_truth,predicted,ground_truth_t,predicted_t,0]
-        return 0
+        return result
 
