@@ -16,7 +16,7 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 3   # The index of the experiment (generator) to be performed
+iexp = 2   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
 fold_seq = "/seq{0}".format(iseq)
@@ -146,14 +146,15 @@ def to_csv(seqs,filename):
 
 def metrics_to_csv(rows,filename):
     with open(filename, "w+") as f:
-        f.write('\"Lambda\",\"Threshold\",\"Accuracy\",\"Precision\",\"Recall\",\"F1\",\"Kappa\",\"AUC\n')
+        f.write('\"Lambda\",\"Threshold\",\"Accuracy\",\"Precision\",\"Recall\",\"F1\",\"Kappa\",\"AUC\",\"AnomPrecision\",\"AnomRecall\",\"AnomF1\n')
         i=1
         for row in rows: 
             if len(row)==0:
                 continue
             f.write(str(row[0])+','+str(row[1])+','+str(row[2])+
                     ','+str(row[3])+','+str(row[4])+','+str(row[5])+
-                    ','+str(row[6])+','+str(row[7])+'\n')
+                    ','+str(row[6])+','+str(row[7])+','+str(row[8])+
+                    ','+str(row[9])+','+str(row[10])+'\n')
             i=i+1
 
 def scores_to_csv(rows,filename):

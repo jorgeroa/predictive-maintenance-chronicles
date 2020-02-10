@@ -198,9 +198,14 @@ def get_metrics(similarity,threshold):
     # print("tn:"+str(tn)+", fp:"+str(fp)+", fn:"+str(fn)+", tp:"+str(tp))
     # print(tn, fp, fn, tp)
     target_names = ['Anomaly', 'No anomaly']
-    print(classification_report(y_ev_test, y_ev_truth, target_names=target_names))
+    clas_report = classification_report(y_ev_test, y_ev_truth, target_names=target_names, output_dict=True)
+    recall_anomaly = clas_report['Anomaly']['recall']
+    precision_anomaly = clas_report['Anomaly']['precision']
+    f1_anomaly = clas_report['Anomaly']['f1-score']
+    print(clas_report)
 
-    return accuracy,precision,recall,f1,kappa,auc,matrix
+    return accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly
+
 # %%
 
 def plot_confusion_matrix(cm,
@@ -290,7 +295,7 @@ for i,prediction in enumerate(predictions):
     plot_ROC(fpr,tpr)
 
 
-    accuracy,precision,recall,f1,kappa,auc,matrix = get_metrics(similarity,threshold)
+    accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly = get_metrics(similarity,threshold)
 
     print('Accuracy: %f' % accuracy)
     print('Precision: %f' % precision)
@@ -299,7 +304,7 @@ for i,prediction in enumerate(predictions):
     print('Cohens kappa: %f' % kappa)
     print('ROC AUC: %f' % auc)
 
-    metrics.append([lambdas[i],threshold,accuracy,precision,recall,f1,kappa,auc])
+    metrics.append([lambdas[i],threshold,accuracy,precision,recall,f1,kappa,auc,recall_anomaly,precision_anomaly,f1_anomaly])
 
     target_names = ['Anomaly', 'No anomaly']
     plot_confusion_matrix(cm = np.array(matrix), 
@@ -312,10 +317,6 @@ scores_to_csv(parameters,fold_output_data+"parameters"+str(labels[i])+".csv")
 
 # Save the metrics for comparison
 metrics_to_csv(metrics,fold_output_data+"metrics"+str(labels[i])+".csv")
-
-
-
-
 
 
 
