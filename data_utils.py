@@ -16,7 +16,7 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 2   # The index of the experiment (generator) to be performed
+iexp = 3   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
 fold_seq = "/seq{0}".format(iseq)

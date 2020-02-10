@@ -60,8 +60,8 @@ print('Disturbed Observations: %d' % (len(disturbed_sequences)))
 # Start training
 print("####### Start traning ########")
 
-h=train(X_train)
-saveobj(f_history,h)
+# h=train(X_train)
+# saveobj(f_history,h)
 
 print("####### End tranining ########")
 
@@ -304,7 +304,7 @@ for i,prediction in enumerate(predictions):
     print('Cohens kappa: %f' % kappa)
     print('ROC AUC: %f' % auc)
 
-    metrics.append([lambdas[i],threshold,accuracy,precision,recall,f1,kappa,auc,recall_anomaly,precision_anomaly,f1_anomaly])
+    metrics.append([lambdas[i],threshold,accuracy,precision,recall,f1,kappa,auc,precision_anomaly,recall_anomaly,f1_anomaly])
 
     target_names = ['Anomaly', 'No anomaly']
     plot_confusion_matrix(cm = np.array(matrix), 
