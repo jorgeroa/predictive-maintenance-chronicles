@@ -26,7 +26,7 @@ def loadobj2(filename):
     with open("./LSTM/output_files/data/%s"% filename, 'rb') as config_file:
         return pickle.load(config_file)
 
-def anomalydetect(DB_seq,param,mod):
+def anomalydetect(DB_seq,param,mod,l):
 
 
     def extract_feature(DB_seq):
@@ -130,7 +130,8 @@ def anomalydetect(DB_seq,param,mod):
         # lamda=0.0000045
         # lamda=0.000045
         # lamda=0.0001
-        lamda=0.001
+        # lamda=0.001
+        lamda = l
         p=exp(-lamda*(abs(t1-t2)))
         return p
     
@@ -209,12 +210,12 @@ def anomalydetect(DB_seq,param,mod):
     #start_time2 = time.perf_counter()
     #print("end seq",start_time2-start_time0)
     result={}
-    result['ground_truth_ev'] = ground_truth
-    result['predicted_ev'] = predicted
+    # result['ground_truth_ev'] = ground_truth
+    # result['predicted_ev'] = predicted
     result['sim_ev'] = Sim
-    result['ground_truth_t'] = ground_truth_t
-    result['predicted_t'] = predicted_t
-    result['sim_t'] = Sim_t
+    # result['ground_truth_t'] = ground_truth_t
+    # result['predicted_t'] = predicted_t
+    # result['sim_t'] = Sim_t
     if  Sim>.8:
 
         result['similarity'] = functools.reduce (lambda a, b: a * b ,Sim_t,1)

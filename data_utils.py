@@ -144,4 +144,25 @@ def to_csv(seqs,filename):
                 f.write(str(t)+','+str(e)+'\n')
                 i=i+1
 
+def metrics_to_csv(rows,filename):
+    with open(filename, "w+") as f:
+        f.write('\"Lambda\",\"Threshold\",\"Accuracy\",\"Precision\",\"Recall\",\"F1\",\"Kappa\",\"AUC\n')
+        i=1
+        for row in rows: 
+            if len(row)==0:
+                continue
+            f.write(str(row[0])+','+str(row[1])+','+str(row[2])+
+                    ','+str(row[3])+','+str(row[4])+','+str(row[5])+
+                    ','+str(row[6])+','+str(row[7])+'\n')
+            i=i+1
+
+def scores_to_csv(rows,filename):
+    with open(filename, "w+") as f:
+        f.write('\"Lambda\",\"Threshold\",\"F1\"\n')
+        i=1
+        for row in rows: #the rows are "Lambda, Threshold, F1-score"
+            if len(row)==0:
+                continue
+            f.write(str(row[0])+','+str(row[1])+','+str(row[2])+'\n')
+            i=i+1
 

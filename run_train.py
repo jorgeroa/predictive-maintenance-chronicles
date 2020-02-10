@@ -12,6 +12,20 @@ from keras.models import load_model
 from matplotlib import pyplot as plt
 import numpy as np
 
+import sklearn
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import cohen_kappa_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
+from sklearn.metrics import classification_report,confusion_matrix
+
+from sklearn.preprocessing import MultiLabelBinarizer
+
+
 print("Experiment:",iexp)
 print("Input Sequence:",iseq)
 print("Model:",imodel)
@@ -74,24 +88,33 @@ seq_df.label=pd.Series(len(X_test[:])*[1]+len(noisy_sequences[:])*[1]+len(distur
 # %%
 
 # EXPERIMENT FOR NORMAL SEQUENCES
-def LSTMpred(seqs):
+def LSTMpred(seqs,l):
     start_time = time.perf_counter()
     # SS=[anomalydetect([seq],param,model) for seq in seqs]
     scores = []
     for seq in seqs:
-        r = anomalydetect([seq],param,model)
+        r = anomalydetect([seq],param,model,l)
         scores.append(r)
 
     end_time=time.perf_counter()
     le=end_time-start_time
     return scores 
 
-prediction=LSTMpred(list(seq_df.sequence))
+lambdas=[0.01,0.001,0.0001,0.00001,0.000001,0.0000001]
+
+predictions=[]
+for l in lambdas:
+    pred = LSTMpred(list(seq_df.sequence),l)
+    predictions.append(pred)
+    save_text_file(pred, fold_output_data+"/result-"+str(l)+".txt")
+
 # print(result)
 # save_text_file(result_normal, fold_current_input_data+"/result.txt")
-save_text_file(prediction, fold_output_data+"/result.txt")
 
 # %%
+
+import sklearn
+
 def decision(l,th=0.9):
     return [int(i>=th) for i in l]
 
@@ -102,7 +125,7 @@ def learn_threshold(predict,label):
     threshold=0
     for s in ss:
         y_pred=decision(predict,s)
-        f1=metrics.f1_score(label, y_pred, average='macro')
+        f1=f1_score(label, y_pred, average='macro')
         fl.append(f1)
         if(f<f1):
             f=f1
@@ -119,11 +142,9 @@ def plot_threshold(ss,fl,f,threshold):
     plt.legend()
     plt.show() 
 
-def plot_ROC(test_labels, test_predictions):
-    fpr, tpr, thresholds = metrics.roc_curve(
-        test_labels, test_predictions, pos_label=1)
-    auc = "%.2f" % metrics.auc(fpr, tpr)
-    title = 'ROC Curve, AUC = '+str(auc)
+def plot_ROC(fpr, tpr):
+    a = "%.2f" % sklearn.metrics.auc(fpr, tpr)
+    title = 'ROC Curve, AUC = '+str(a)
     with plt.style.context(('ggplot')):
         fig, ax = plt.subplots()
         ax.plot(fpr, tpr, "#000099", label='ROC curve')
@@ -142,63 +163,44 @@ def savescore(filename,p,r,f):
         #spamwriter.writerow(["CaseID", "nb ch","nbseq","per", "accuracy", "recall", "f1 score", "execution time","memory usage"])
         spamwriter.writerow(['*',p,r,f])
 
-
-# %%
-labels = list(seq_df.label)
-similarity = [pred['similarity'] for pred in prediction]
-ss,fl,f,threshold=learn_threshold(similarity,labels)
-print("Threshold: ",threshold, " F1-score: ", f)
-plot_threshold(ss,fl,f,threshold)
-
-plot_ROC(seq_df.label,similarity)
-
 # %%
 
 # Calculate metrics
 
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import f1_score
-from sklearn.metrics import cohen_kappa_score
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import classification_report,confusion_matrix
+def get_metrics(similarity,threshold):
+    # y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
+    y_ev_test = decision(similarity,threshold)
+    y_ev_truth = seq_df.label
 
-from sklearn.preprocessing import MultiLabelBinarizer
+    # accuracy: (tp + tn) / (p + n)
+    accuracy = accuracy_score(y_ev_test, y_ev_truth)
+    print('Accuracy: %f' % accuracy)
+    # precision tp / (tp + fp)
+    precision = precision_score(y_ev_test, y_ev_truth, average='macro')
+    print('Precision: %f' % precision)
+    # recall: tp / (tp + fn)
+    recall = recall_score(y_ev_test, y_ev_truth, average='macro')
+    print('Recall: %f' % recall)
+    # f1: 2 tp / (2 tp + fp + fn)
+    f1 = f1_score(y_ev_test, y_ev_truth, average='macro')
+    print('F1 score: %f' % f1)
+    
+    # kappa
+    kappa = cohen_kappa_score(y_ev_test, y_ev_truth)
+    print('Cohens kappa: %f' % kappa)
+    # ROC AUC
+    auc = roc_auc_score(y_ev_test, y_ev_truth)
 
-# y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
-y_ev_test = decision(similarity,threshold)
-y_ev_truth = seq_df.label
+    # confusion matrix
+    matrix = confusion_matrix(y_ev_test, y_ev_truth)
+    # print(matrix)
+    # tn, fp, fn, tp = confusion_matrix(y_ev_test, y_ev_truth).ravel()
+    # print("tn:"+str(tn)+", fp:"+str(fp)+", fn:"+str(fn)+", tp:"+str(tp))
+    # print(tn, fp, fn, tp)
+    target_names = ['Anomaly', 'No anomaly']
+    print(classification_report(y_ev_test, y_ev_truth, target_names=target_names))
 
-# accuracy: (tp + tn) / (p + n)
-accuracy = accuracy_score(y_ev_test, y_ev_truth)
-print('Accuracy: %f' % accuracy)
-# precision tp / (tp + fp)
-precision = precision_score(y_ev_test, y_ev_truth, average='macro')
-print('Precision: %f' % precision)
-# recall: tp / (tp + fn)
-recall = recall_score(y_ev_test, y_ev_truth, average='macro')
-print('Recall: %f' % recall)
-# f1: 2 tp / (2 tp + fp + fn)
-f1 = f1_score(y_ev_test, y_ev_truth, average='macro')
-print('F1 score: %f' % f1)
- 
-# kappa
-kappa = cohen_kappa_score(y_ev_test, y_ev_truth)
-print('Cohens kappa: %f' % kappa)
-# ROC AUC
-auc = roc_auc_score(y_ev_test, y_ev_truth)
-print('ROC AUC: %f' % auc)
-
-# confusion matrix
-matrix = confusion_matrix(y_ev_test, y_ev_truth)
-# print(matrix)
-# tn, fp, fn, tp = confusion_matrix(y_ev_test, y_ev_truth).ravel()
-# print("tn:"+str(tn)+", fp:"+str(fp)+", fn:"+str(fn)+", tp:"+str(tp))
-# print(tn, fp, fn, tp)
-target_names = ['Anomaly', 'No anomaly']
-print(classification_report(y_ev_test, y_ev_truth, target_names=target_names))
-
+    return accuracy,precision,recall,f1,kappa,auc,matrix
 # %%
 
 def plot_confusion_matrix(cm,
@@ -224,18 +226,6 @@ def plot_confusion_matrix(cm,
 
     normalize:    If False, plot the raw numbers
                   If True, plot the proportions
-
-    Usage
-    -----
-    plot_confusion_matrix(cm           = cm,                  # confusion matrix created by
-                                                              # sklearn.metrics.confusion_matrix
-                          normalize    = True,                # show proportions
-                          target_names = y_labels_vals,       # list of names of the classes
-                          title        = best_estimator_name) # title of graph
-
-    Citiation
-    ---------
-    http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
 
     """
     import matplotlib.pyplot as plt
@@ -279,11 +269,54 @@ def plot_confusion_matrix(cm,
     plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
     plt.show()
 
+# %%
 
-plot_confusion_matrix(cm = np.array(matrix), 
-                      normalize    = False,
-                      target_names = target_names,
-                      title        = "Confusion Matrix")
+labels = list(seq_df.label)
+parameters = []
+metrics = []
+for i,prediction in enumerate(predictions):
+    similarity = [pred['similarity'] for pred in prediction]
+    ss,fl,f,threshold=learn_threshold(similarity,labels)
+    parameters.append([lambdas[i],threshold,f])
+    print("Lambda: ",lambdas[i]," Threshold: ",threshold, " F1-score: ", f)
+    
+    plot_threshold(ss,fl,f,threshold)
+
+    # ROC AUC
+    auc = roc_auc_score(seq_df.label, similarity)
+    print('ROC AUC: %f' % auc)            
+    fpr, tpr, thresholds = roc_curve(
+        seq_df.label, similarity, pos_label=1)
+    plot_ROC(fpr,tpr)
+
+
+    accuracy,precision,recall,f1,kappa,auc,matrix = get_metrics(similarity,threshold)
+
+    print('Accuracy: %f' % accuracy)
+    print('Precision: %f' % precision)
+    print('Recall: %f' % recall)
+    print('F1 score: %f' % f1)
+    print('Cohens kappa: %f' % kappa)
+    print('ROC AUC: %f' % auc)
+
+    metrics.append([lambdas[i],threshold,accuracy,precision,recall,f1,kappa,auc])
+
+    target_names = ['Anomaly', 'No anomaly']
+    plot_confusion_matrix(cm = np.array(matrix), 
+                        normalize    = False,
+                        target_names = target_names,
+                        title        = "Confusion Matrix")
+
+# Save the scores for comparison
+scores_to_csv(parameters,fold_output_data+"parameters"+str(labels[i])+".csv")
+
+# Save the metrics for comparison
+metrics_to_csv(metrics,fold_output_data+"metrics"+str(labels[i])+".csv")
+
+
+
+
+
 
 
 # %%
