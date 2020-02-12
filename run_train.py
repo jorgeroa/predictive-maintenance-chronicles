@@ -107,9 +107,21 @@ for l in lambdas:
     pred = LSTMpred(list(seq_df.sequence),l)
     predictions.append(pred)
     save_text_file(pred, fold_output_data+"/result-"+str(l)+".txt")
+    saveobj(fold_output_data+"/result-"+str(l)+".pick",pred)
 
 # print(result)
 # save_text_file(result_normal, fold_current_input_data+"/result.txt")
+
+# %%
+# RUN ONLY IF EXPERIMENTS ARE ALREADY SAVED
+lambdas=[0.01,0.001,0.0001,0.00001,0.000001,0.0000001]
+
+predictions=[]
+for l in lambdas:
+    pred = loadobj(fold_output_data+"/result-"+str(l)+".pick")
+    predictions.append(pred)
+
+
 
 # %%
 
@@ -143,8 +155,9 @@ def plot_threshold(ss,fl,f,threshold):
     plt.show() 
 
 def plot_ROC(fpr, tpr):
-    a = "%.2f" % sklearn.metrics.auc(fpr, tpr)
-    title = 'ROC Curve, AUC = '+str(a)
+    # a = "%.2f" % sklearn.metrics.auc(fpr, tpr)
+    roc_auc = sklearn.metrics.auc(fpr, tpr)
+    title = '{} (AUC={:.3f})'.format('ROC Curve', roc_auc)
     with plt.style.context(('ggplot')):
         fig, ax = plt.subplots()
         ax.plot(fpr, tpr, "#000099", label='ROC curve')
@@ -155,7 +168,29 @@ def plot_ROC(fpr, tpr):
         plt.ylabel('True Positive Rate')
         plt.legend(loc='lower right')
         plt.title(title)
+        plt.show() 
+
     return fig
+    
+    # plt.figure(figsize=(4, 4), dpi=80)
+    # plt.xlabel("FPR", fontsize=14)
+    # plt.ylabel("TPR", fontsize=14)
+    # plt.title("ROC Curve", fontsize=14)
+
+    # roc_auc = sklearn.metrics.auc(fpr, tpr)
+
+    # roc_label = '{} (AUC={:.3f})'.format('ROC Curve', roc_auc)
+    # plt.plot(fpr, tpr, color='blue', linewidth=2, label=roc_label)
+
+    # x = [0.0, 1.0]
+    # plt.plot(x, x, linestyle='dashed', color='red', linewidth=2, label='random')
+
+    # plt.xlim(0.0, 1.0)
+    # plt.ylim(0.0, 1.0)
+    # plt.legend(fontsize=10, loc='best')
+    # plt.tight_layout()
+
+
 
 def savescore(filename,p,r,f):
     with open(filename, 'a+') as csvfile:
@@ -167,42 +202,42 @@ def savescore(filename,p,r,f):
 
 # Calculate metrics
 
-def get_metrics(similarity,threshold):
-    # y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
-    y_ev_test = decision(similarity,threshold)
-    y_ev_truth = seq_df.label
+def get_metrics(y_ev_truth,y_ev_test):
+    # # y_ev_test = MultiLabelBinarizer().fit_transform(result_normal)
+    # y_ev_test = decision(similarity,threshold)
+    # y_ev_truth = seq_df.label
 
     # accuracy: (tp + tn) / (p + n)
-    accuracy = accuracy_score(y_ev_test, y_ev_truth)
-    print('Accuracy: %f' % accuracy)
+    accuracy = accuracy_score(y_ev_truth, y_ev_test)
+    # print('Accuracy: %f' % accuracy)
     # precision tp / (tp + fp)
-    precision = precision_score(y_ev_test, y_ev_truth, average='macro')
-    print('Precision: %f' % precision)
+    precision = precision_score( y_ev_truth, y_ev_test, average='macro')
+    # print('Precision: %f' % precision)
     # recall: tp / (tp + fn)
-    recall = recall_score(y_ev_test, y_ev_truth, average='macro')
-    print('Recall: %f' % recall)
+    recall = recall_score(y_ev_truth, y_ev_test, average='macro')
+    # print('Recall: %f' % recall)
     # f1: 2 tp / (2 tp + fp + fn)
-    f1 = f1_score(y_ev_test, y_ev_truth, average='macro')
-    print('F1 score: %f' % f1)
+    f1 = f1_score(y_ev_truth, y_ev_test, average='macro')
+    # print('F1 score: %f' % f1)
     
     # kappa
-    kappa = cohen_kappa_score(y_ev_test, y_ev_truth)
-    print('Cohens kappa: %f' % kappa)
+    kappa = cohen_kappa_score(y_ev_truth, y_ev_test)
+    # print('Cohens kappa: %f' % kappa)
     # ROC AUC
-    auc = roc_auc_score(y_ev_test, y_ev_truth)
+    auc = roc_auc_score(y_ev_truth, y_ev_test)
 
     # confusion matrix
-    matrix = confusion_matrix(y_ev_test, y_ev_truth)
+    matrix = confusion_matrix(y_ev_truth, y_ev_test)
     # print(matrix)
     # tn, fp, fn, tp = confusion_matrix(y_ev_test, y_ev_truth).ravel()
     # print("tn:"+str(tn)+", fp:"+str(fp)+", fn:"+str(fn)+", tp:"+str(tp))
     # print(tn, fp, fn, tp)
     target_names = ['Anomaly', 'No anomaly']
-    clas_report = classification_report(y_ev_test, y_ev_truth, target_names=target_names, output_dict=True)
+    clas_report = classification_report(y_ev_truth, y_ev_test, target_names=target_names, output_dict=True)
     recall_anomaly = clas_report['Anomaly']['recall']
     precision_anomaly = clas_report['Anomaly']['precision']
     f1_anomaly = clas_report['Anomaly']['f1-score']
-    print(clas_report)
+    print(classification_report(y_ev_truth, y_ev_test, target_names=target_names, output_dict=False))
 
     return accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly
 
@@ -277,25 +312,30 @@ def plot_confusion_matrix(cm,
 # %%
 
 labels = list(seq_df.label)
+
+y_ev_truth = list(seq_df.label)
+
 parameters = []
 metrics = []
 for i,prediction in enumerate(predictions):
+    
     similarity = [pred['similarity'] for pred in prediction]
-    ss,fl,f,threshold=learn_threshold(similarity,labels)
+
+    ss,fl,f,threshold=learn_threshold(similarity,y_ev_truth)
     parameters.append([lambdas[i],threshold,f])
     print("Lambda: ",lambdas[i]," Threshold: ",threshold, " F1-score: ", f)
-    
+
     plot_threshold(ss,fl,f,threshold)
 
-    # ROC AUC
-    auc = roc_auc_score(seq_df.label, similarity)
-    print('ROC AUC: %f' % auc)            
-    fpr, tpr, thresholds = roc_curve(
-        seq_df.label, similarity, pos_label=1)
+    y_ev_test = decision(similarity,threshold)
+
+    # # ROC AUC
+    # auc = roc_auc_score(y_ev_truth,y_ev_test)
+    # print('ROC AUC: %f' % auc)            
+    fpr, tpr, thresholds = roc_curve(y_ev_truth,y_ev_test, pos_label=1)
     plot_ROC(fpr,tpr)
 
-
-    accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly = get_metrics(similarity,threshold)
+    accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly = get_metrics(y_ev_truth,y_ev_test)
 
     print('Accuracy: %f' % accuracy)
     print('Precision: %f' % precision)
