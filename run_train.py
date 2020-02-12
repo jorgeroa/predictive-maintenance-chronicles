@@ -337,10 +337,10 @@ for i,prediction in enumerate(predictions):
 
     accuracy,precision,recall,f1,kappa,auc,matrix,recall_anomaly,precision_anomaly,f1_anomaly = get_metrics(y_ev_truth,y_ev_test)
 
-    print('Accuracy: %f' % accuracy)
-    print('Precision: %f' % precision)
-    print('Recall: %f' % recall)
-    print('F1 score: %f' % f1)
+    # print('Accuracy: %f' % accuracy)
+    # print('Precision: %f' % precision)
+    # print('Recall: %f' % recall)
+    # print('F1 score: %f' % f1)
     print('Cohens kappa: %f' % kappa)
     print('ROC AUC: %f' % auc)
 
@@ -357,6 +357,7 @@ scores_to_csv(parameters,fold_output_data+"parameters"+str(labels[i])+".csv")
 
 # Save the metrics for comparison
 metrics_to_csv(metrics,fold_output_data+"metrics"+str(labels[i])+".csv")
+
 
 
 
