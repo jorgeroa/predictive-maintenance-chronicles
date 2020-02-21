@@ -259,7 +259,7 @@ def train(DB_seq):
                     verbose=2, 
                     callbacks=[early_stopping, model_checkpoint, lr_reducer, tensorboard_callback], 
                     batch_size=maxlen, 
-                    epochs=500)
+                    epochs=50)
 
 
     return h
