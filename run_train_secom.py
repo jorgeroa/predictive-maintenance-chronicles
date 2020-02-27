@@ -48,6 +48,29 @@ sequences=loadobj("experiments/secom/seqs.data")
 # %%
 
 X = sequences[:]    # Copy sequences to X
+
+newX= []
+print("len(X): "+str(len(X)))
+for x in X:
+    size = len(x) 
+    idx_list = [idx + 1 for idx, val in
+                enumerate(x) if idx >= 99] 
+    
+    res = idx_list
+    if len(idx_list)>0:
+        res = [x[i: j] for i, j in
+                zip([0] + idx_list, idx_list + 
+                ([size] if idx_list[-1] != size else []))] 
+    
+    newX.extend(res)
+
+print("len(newX): "+str(len(newX)))
+
+maxlen = max([len(x) for x in newX]) #find maximum line size
+print("maxlen: "+str(maxlen))
+
+X = newX[:]
+
 train_size = int(len(X) * 0.7)  # 70% for training
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 

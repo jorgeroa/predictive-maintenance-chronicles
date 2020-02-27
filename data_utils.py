@@ -16,7 +16,7 @@ f_current_result_disturbed = fold_current_output_data+"result_disturbed.txt"
 
 # Parameters for generating experiments of data generation
 
-iexp = 4   # The index of the experiment (generator) to be performed
+iexp = 5   # The index of the experiment (generator) to be performed
 iseq = 1 # The index of the sequence to be generated. N sequences can be generated for one experiment
 fold_gen = "experiments/generator{0}".format(iexp)
 fold_seq = "/seq{0}".format(iseq)
@@ -167,3 +167,16 @@ def scores_to_csv(rows,filename):
             f.write(str(row[0])+','+str(row[1])+','+str(row[2])+'\n')
             i=i+1
 
+
+def get_events_time(DB):
+    events = []
+    time = []
+    for seq in DB: 
+        if len(seq)==0:
+            continue
+        
+        for t,e in seq:
+            events.append(e)
+            time.append(t)
+
+    return events,time

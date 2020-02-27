@@ -102,15 +102,15 @@ def train(DB_seq):
         timeseqs.append(times)
         timeseqs2.append(times2)
         
-    print("e: ",lines)
-    print("t: ", timeseqs)
+    # print("e: ",lines)
+    # print("t: ", timeseqs)
 
     ########################################
 
     divisor = np.mean([item for sublist in timeseqs for item in sublist]) #average time between events
-    print('divisor: {}'.format(divisor))
+    # print('divisor: {}'.format(divisor))
     divisor2 = np.mean([item for sublist in timeseqs2 for item in sublist]) #average time between current and first events
-    print('divisor2: {}'.format(divisor2))
+    # print('divisor2: {}'.format(divisor2))
 
     #########################################################################################################
 
@@ -127,7 +127,7 @@ def train(DB_seq):
     chars.sort()
     target_chars = copy.copy(chars)
     #chars.remove('!')
-    print('total chars: {}, target chars: {}'.format(len(chars), len(target_chars)))
+    # print('total chars: {}, target chars: {}'.format(len(chars), len(target_chars)))
     char_indices = dict((c, i) for i, c in enumerate(chars))
     indices_char = dict((i, c) for i, c in enumerate(chars))
     target_char_indices = dict((c, i) for i, c in enumerate(target_chars))
@@ -261,5 +261,6 @@ def train(DB_seq):
                     batch_size=maxlen, 
                     epochs=50)
 
+    print("model.fit() end: ",time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()))
 
     return h
